@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Acesso ao Sistema | SIGOE{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <!-- Cabeçalho do Card de Login -->
+        <div class="login-header">
+            <div class="login-icon-circle">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h4 class="fw-bold mb-1">SIGOE</h4>
+            <p class="mb-0 small text-white-50">Sistema Integrado de Gestão de Ocorrências</p>
+        </div>
+
+        <!-- Corpo com Formulário -->
+        <div class="login-body">
+            <div class="text-center mb-4">
+                <h5 class="fw-semibold text-dark mb-1">Autenticação</h5>
+                <p class="text-muted small">Informe seu e-mail institucional e senha de acesso</p>
+            </div>
+
+            <form method="post" action="{% url 'usuarios:login' %}" novalidate>
+                {% csrf_token %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <!-- Campo E-mail -->
+                <div class="mb-3">
+                    <label for="id_email" class="form-label small fw-semibold text-secondary">
+                        <i class="bi bi-envelope me-1"></i> E-mail Institucional
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0">
+                            <i class="bi bi-at"></i>
+                        </span>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Senha -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="id_password" class="form-label small fw-semibold text-secondary mb-1">
+                            <i class="bi bi-lock me-1"></i> Senha de Acesso
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        {{ form.password }}
+                        <button class="btn btn-outline-secondary border-start-0" type="button" id="togglePassword" title="Exibir/Ocultar Senha">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Lembrar-me e Ajuda -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        {{ form.lembrar_me }}
+                        <label class="form-check-label small text-muted user-select-none" for="id_lembrar_me">
+                            Lembrar-me
+                        </label>
+                    </div>
+                    <span class="text-muted small" data-bs-toggle="tooltip" data-bs-placement="top" title="Em caso de esquecimento, solicite a redefinição à Coordenação ou Administração Escolar.">
+                        <i class="bi bi-question-circle"></i> Ajuda
+                    </span>
+                </div>
+
+                <!-- Botão de Login -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-sigoe-primary btn-lg fs-6">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Entrar no Sistema
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-3 border-top text-center">
+                <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
+                    <i class="bi bi-shield-lock-fill text-primary"></i>
+                    <span>Ambiente seguro &bull; Conformidade LGPD</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
