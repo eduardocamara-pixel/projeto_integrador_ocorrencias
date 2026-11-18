@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ turma.nome }} | Estudantes | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'turmas:lista_turmas' %}">Turmas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ turma.nome }}</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                {{ turma.nome }} &mdash; {{ turma.ano_letivo }}
+            </h3>
+            <span class="text-muted small">{{ turma.serie }} &bull; Turno {{ turma.get_turno_display }}</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'turmas:lista_turmas' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Voltar às Turmas
+            </a>
+            {% if user.is_professor or user.is_admin %}
+                <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-warning btn-sm fw-semibold text-dark">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Registrar Ocorrência
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabela de Alunos da Turma -->
+    <div class="sigoe-card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="fw-semibold mb-0 text-dark">
+                <i class="bi bi-people-fill text-primary me-2"></i>Estudantes Matriculados ({{ matriculas.count }})
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            {% if matriculas %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary small text-uppercase">
+                            <tr>
+                                <th class="ps-3">Matrícula</th>
+                                <th>Nome do Estudante</th>
+                                <th>Data de Entrada</th>
+                                <th>Situação</th>
+                                <th class="text-end pe-3">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in matriculas %}
+                            <tr>
+                                <td class="ps-3 font-monospace text-muted fw-semibold">{{ m.aluno.matricula }}</td>
+                                <td class="fw-semibold text-dark">{{ m.aluno.nome }}</td>
+                                <td class="small text-muted">{{ m.data_entrada|date:"d/m/Y" }}</td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success border">
+                                        {{ m.get_situacao_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-3">
+                                    {% if user.is_coordenacao or user.is_admin %}
+                                        <a href="{% url 'alunos:prontuario_aluno' m.aluno.id %}" class="btn btn-outline-primary btn-sm" title="Ver Prontuário">
+                                            <i class="bi bi-folder2-open me-1"></i> Prontuário
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">Ativo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x fs-1 text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">Nenhum estudante com matrícula ativa nesta turma.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

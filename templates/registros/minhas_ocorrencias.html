@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Minhas Ocorrências | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Ocorrências</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-journal-text text-primary me-2"></i>
+                {% if user.is_admin %}Painel de Todas as Ocorrências{% else %}Minhas Ocorrências Registradas{% endif %}
+            </h3>
+        </div>
+        <div>
+            <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-warning fw-semibold text-dark shadow-sm px-3">
+                <i class="bi bi-plus-circle-fill me-1"></i> Nova Ocorrência
+            </a>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros e Pesquisa -->
+    <div class="sigoe-card p-3 mb-4">
+        <form method="get" class="row g-2 align-items-center">
+            <!-- Busca textual -->
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="busca" class="form-control border-start-0" placeholder="Buscar por estudante ou matrícula..." value="{{ busca }}">
+                </div>
+            </div>
+
+            <!-- Filtro por Status -->
+            <div class="col-sm-6 col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Todos os status</option>
+                    {% for st_val, st_label in status_choices %}
+                        <option value="{{ st_val }}" {% if status_selecionado == st_val %}selected{% endif %}>
+                            {{ st_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filtro por Categoria -->
+            <div class="col-sm-6 col-md-3">
+                <select name="categoria" class="form-select form-select-sm">
+                    <option value="">Todas as categorias</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if categoria_selecionada == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Botões Aplicar e Limpar -->
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                    <i class="bi bi-filter"></i> Filtrar
+                </button>
+                {% if status_selecionado or categoria_selecionada or busca %}
+                    <a href="{% url 'registros:minhas_ocorrencias' %}" class="btn btn-outline-secondary btn-sm" title="Limpar Filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de Ocorrências -->
+    <div class="sigoe-card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <span class="fw-semibold text-secondary small">
+                Mostrando <strong>{{ ocorrencias.count }}</strong> registro(s)
+            </span>
+        </div>
+        <div class="card-body p-0">
+            {% if ocorrencias %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary small text-uppercase">
+                            <tr>
+                                <th class="ps-3">ID</th>
+                                <th>Estudante</th>
+                                <th>Turma</th>
+                                <th>Categoria</th>
+                                <th>Data do Fato</th>
+                                <th>Status</th>
+                                {% if user.is_admin %}<th>Professor</th>{% endif %}
+                                <th class="text-end pe-3">Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for oc in ocorrencias %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-muted">#{{ oc.id }}</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ oc.aluno.nome }}</div>
+                                    <span class="small text-muted font-monospace">Matrícula: {{ oc.aluno.matricula }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ oc.turma.nome }}</span>
+                                </td>
+                                <td>{{ oc.categoria.nome }}</td>
+                                <td class="small text-muted">
+                                    {{ oc.data_ocorrencia|date:"d/m/Y H:i" }}<br>
+                                    <span class="badge bg-secondary-subtle text-secondary small">{{ oc.local }}</span>
+                                </td>
+                                <td>
+                                    {% if oc.status == 'REGISTRADA' %}
+                                        <span class="badge bg-secondary-subtle text-secondary border">Registrada</span>
+                                    {% elif oc.status == 'EM_ANALISE' %}
+                                        <span class="badge bg-warning-subtle text-warning border">Em Análise</span>
+                                    {% elif oc.status == 'EM_ACOMPANHAMENTO' %}
+                                        <span class="badge bg-info-subtle text-info border">Em Acompanhamento</span>
+                                    {% elif oc.status == 'ENCAMINHADA' %}
+                                        <span class="badge bg-primary-subtle text-primary border">Encaminhada</span>
+                                    {% elif oc.status == 'CONCLUIDA' %}
+                                        <span class="badge bg-success-subtle text-success border">Concluída</span>
+                                    {% endif %}
+                                </td>
+                                {% if user.is_admin %}
+                                    <td class="small text-muted">{{ oc.professor.nome }}</td>
+                                {% endif %}
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#detalhes-{{ oc.id }}" aria-expanded="false" aria-controls="detalhes-{{ oc.id }}" title="Ver relato">
+                                        <i class="bi bi-eye me-1"></i> Ver Relato
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Linha colapsável com descrição detalhada -->
+                            <tr class="collapse bg-light" id="detalhes-{{ oc.id }}">
+                                <td colspan="{% if user.is_admin %}8{% else %}7{% endif %}" class="p-3">
+                                    <div class="p-3 bg-white border rounded">
+                                        <h6 class="fw-bold text-dark mb-2">Relato Fático:</h6>
+                                        <p class="text-secondary small mb-3">{{ oc.descricao|linebreaksbr }}</p>
+
+                                        {% if oc.providencias_iniciais %}
+                                            <h6 class="fw-bold text-dark mb-1">Providências Iniciais Adotadas em Sala:</h6>
+                                            <p class="text-secondary small mb-0">{{ oc.providencias_iniciais|linebreaksbr }}</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <h6 class="fw-semibold text-dark mt-2">Nenhuma ocorrência encontrada</h6>
+                    <p class="text-muted small">Tente ajustar os filtros ou registre uma nova ocorrência.</p>
+                    <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-sm btn-sigoe-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Nova Ocorrência
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -150,3 +150,160 @@ class AutenticacaoNavegacaoTestCase(TestCase):
         self.client.login(username='prof.ana@escola.gov.br', password='SenhaValida@2026')
         response = self.client.post(reverse('usuarios:logout'))
         self.assertRedirects(response, reverse('usuarios:login'))
+
+
+class NavegacaoPorPerfilTestCase(TestCase):
+    """
+    Testes de Controle de Acesso Baseado em Papéis (RBAC) e Navegação por Perfil.
+    """
+    def setUp(self):
+        self.client = Client()
+
+        # Criação de usuários com os 3 perfis
+        self.professor = Usuario.objects.create_user(
+            email='prof.roberto@escola.gov.br',
+            nome='Prof. Roberto Mendes',
+            password='SenhaProfessor123',
+            perfil=PerfilUsuario.PROFESSOR
+        )
+        self.coordenadora = Usuario.objects.create_user(
+            email='coord.claudia@escola.gov.br',
+            nome='Claudia Coordenadora',
+            password='SenhaCoord123',
+            perfil=PerfilUsuario.COORDENACAO
+        )
+        self.admin = Usuario.objects.create_user(
+            email='admin.marcos@escola.gov.br',
+            nome='Marcos Admin',
+            password='SenhaAdmin123',
+            perfil=PerfilUsuario.ADMIN,
+            is_staff=True,
+            is_superuser=True
+        )
+
+        # Dados base para teste de registro
+        self.aluno = Aluno.objects.create(
+            nome='Beatriz Lima',
+            matricula='2026099',
+            data_nascimento=date(2011, 3, 20)
+        )
+        self.turma = Turma.objects.create(
+            nome='8º Ano A',
+            serie='8º EF',
+            turno=TurnoTurma.MATUTINO,
+            ano_letivo=2026
+        )
+        self.matricula = MatriculaTurma.objects.create(
+            aluno=self.aluno,
+            turma=self.turma,
+            situacao=SituacaoMatricula.ATIVA
+        )
+        self.categoria = CategoriaOcorrencia.objects.create(
+            nome='Conflito Interpessoal',
+            descricao='Discussões e divergências'
+        )
+
+    def test_navegacao_perfil_professor(self):
+        """O Professor deve acessar suas telas específicas e ser bloqueado nas restritas à Coordenação/Admin."""
+        self.client.login(username='prof.roberto@escola.gov.br', password='SenhaProfessor123')
+
+        # Acessos permitidos ao Professor
+        res_minhas = self.client.get(reverse('registros:minhas_ocorrencias'))
+        self.assertEqual(res_minhas.status_code, 200)
+
+        res_nova = self.client.get(reverse('registros:nova_ocorrencia'))
+        self.assertEqual(res_nova.status_code, 200)
+
+        res_turmas = self.client.get(reverse('turmas:lista_turmas'))
+        self.assertEqual(res_turmas.status_code, 200)
+
+        # Acessos PROIBIDOS ao Professor (403)
+        res_triagem = self.client.get(reverse('acompanhamento:triagem'))
+        self.assertEqual(res_triagem.status_code, 403)
+        self.assertTemplateUsed(res_triagem, '403.html')
+
+        res_admin_painel = self.client.get(reverse('usuarios:painel_admin'))
+        self.assertEqual(res_admin_painel.status_code, 403)
+
+    def test_navegacao_perfil_coordenacao(self):
+        """A Coordenação deve acessar triagem, prontuários e turmas, mas não o painel admin exclusivo."""
+        self.client.login(username='coord.claudia@escola.gov.br', password='SenhaCoord123')
+
+        # Acessos permitidos à Coordenação
+        res_triagem = self.client.get(reverse('acompanhamento:triagem'))
+        self.assertEqual(res_triagem.status_code, 200)
+
+        res_alunos = self.client.get(reverse('alunos:lista_alunos'))
+        self.assertEqual(res_alunos.status_code, 200)
+
+        res_turmas = self.client.get(reverse('turmas:lista_turmas'))
+        self.assertEqual(res_turmas.status_code, 200)
+
+        # Acesso PROIBIDO à Coordenação (painel exclusivo do Admin)
+        res_admin_painel = self.client.get(reverse('usuarios:painel_admin'))
+        self.assertEqual(res_admin_painel.status_code, 403)
+
+    def test_navegacao_perfil_admin(self):
+        """O Administrador possui acesso irrestrito a todas as áreas do sistema."""
+        self.client.login(username='admin.marcos@escola.gov.br', password='SenhaAdmin123')
+
+        self.assertEqual(self.client.get(reverse('usuarios:painel_admin')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('acompanhamento:triagem')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('registros:nova_ocorrencia')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('alunos:lista_alunos')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('turmas:lista_turmas')).status_code, 200)
+
+    def test_fluxo_registro_e_tramitacao_interativo(self):
+        """Simula o fluxo completo: Professor registra, Coordenação tramita e audita."""
+        # 1. Professor registra ocorrência
+        self.client.login(username='prof.roberto@escola.gov.br', password='SenhaProfessor123')
+        post_data = {
+            'matricula_turma': self.matricula.id,
+            'categoria': self.categoria.id,
+            'data_ocorrencia': timezone.now().strftime('%Y-%m-%dT%H:%M'),
+            'local': 'Pátio Central',
+            'descricao': 'Estudante se exaltou durante o intervalo.',
+            'providencias_iniciais': 'Orientação verbal imediata.'
+        }
+        res_post = self.client.post(reverse('registros:nova_ocorrencia'), post_data)
+        self.assertRedirects(res_post, reverse('registros:minhas_ocorrencias'))
+
+        ocorrencia = Ocorrencia.objects.filter(matricula_turma=self.matricula).first()
+        self.assertIsNotNone(ocorrencia)
+        self.assertEqual(ocorrencia.status, StatusOcorrencia.REGISTRADA)
+        self.assertEqual(ocorrencia.professor, self.professor)
+
+        # 2. Coordenação faz login, acessa triagem e tramita para EM_ANALISE
+        self.client.login(username='coord.claudia@escola.gov.br', password='SenhaCoord123')
+        res_triagem = self.client.get(reverse('acompanhamento:triagem'))
+        self.assertEqual(res_triagem.status_code, 200)
+        self.assertContains(res_triagem, 'Beatriz Lima')
+
+        # Tramita status para EM_ANALISE
+        res_status = self.client.post(
+            reverse('acompanhamento:detalhe_ocorrencia', kwargs={'pk': ocorrencia.id}),
+            {
+                'action': 'mudar_status',
+                'novo_status': StatusOcorrencia.EM_ANALISE,
+                'justificativa': 'Iniciando escuta dos envolvidos.'
+            }
+        )
+        self.assertRedirects(res_status, reverse('acompanhamento:detalhe_ocorrencia', kwargs={'pk': ocorrencia.id}))
+        ocorrencia.refresh_from_db()
+        self.assertEqual(ocorrencia.status, StatusOcorrencia.EM_ANALISE)
+
+        # Registra intervenção pedagógica
+        res_acomp = self.client.post(
+            reverse('acompanhamento:detalhe_ocorrencia', kwargs={'pk': ocorrencia.id}),
+            {
+                'action': 'novo_acompanhamento',
+                'tipo_registro': TipoRegistroAcompanhamento.ORIENTACAO,
+                'observacao': 'Estudante acolhida na coordenação, reconheceu o erro.',
+                'encaminhamento': 'Termo de convivência pactuado.'
+            }
+        )
+        self.assertRedirects(res_acomp, reverse('acompanhamento:detalhe_ocorrencia', kwargs={'pk': ocorrencia.id}))
+
+        # Verifica histórico de intervenções e auditoria
+        self.assertEqual(ocorrencia.acompanhamentos.count(), 1)
+        self.assertTrue(HistoricoAlteracao.objects.filter(ocorrencia=ocorrencia).count() >= 2)

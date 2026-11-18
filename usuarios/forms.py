@@ -1,4 +1,5 @@
 from django import forms
+from .models import Usuario, PerfilUsuario
 
 
 class LoginForm(forms.Form):
@@ -34,3 +35,33 @@ class LoginForm(forms.Form):
             'id': 'id_lembrar_me',
         })
     )
+
+
+class UsuarioCadastroForm(forms.ModelForm):
+    """
+    Formulário para cadastro de novos usuários pelo Administrador.
+    """
+    password = forms.CharField(
+        label='Senha Inicial de Acesso',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Defina uma senha temporária...'
+        })
+    )
+
+    class Meta:
+        model = Usuario
+        fields = ['nome', 'email', 'perfil', 'password', 'ativo']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome completo do usuário'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'usuario@escola.gov.br'}),
+            'perfil': forms.Select(attrs={'class': 'form-select'}),
+            'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user

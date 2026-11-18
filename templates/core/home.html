@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container container-xl py-4">
 
-    <!-- Banner de Boas-Vindas -->
+    <!-- Banner de Boas-Vindas com Identidade do Perfil -->
     <div class="sigoe-card p-4 mb-4 border-0" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #ffffff;">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -20,16 +20,180 @@
                 </div>
                 <h3 class="fw-bold mb-1">Olá, {{ user.nome }}!</h3>
                 <p class="mb-0 text-white-50">
-                    Bem-vindo(a) ao SIGOE. Acompanhe abaixo os indicadores e acessos rápidos para a gestão escolar.
+                    Bem-vindo(a) ao SIGOE. Selecione uma ação rápida abaixo para a gestão pedagógica e disciplinar.
                 </p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 {% if user.is_professor or user.is_admin %}
-                    <a href="{% url 'admin:registros_ocorrencia_add' %}" class="btn btn-warning fw-semibold shadow-sm text-dark px-3 py-2">
+                    <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-warning fw-semibold shadow-sm text-dark px-3 py-2">
                         <i class="bi bi-plus-circle-fill me-1"></i> Nova Ocorrência
+                    </a>
+                {% elif user.is_coordenacao %}
+                    <a href="{% url 'acompanhamento:triagem' %}" class="btn btn-warning fw-semibold shadow-sm text-dark px-3 py-2">
+                        <i class="bi bi-kanban-fill me-1"></i> Fila de Triagem
                     </a>
                 {% endif %}
             </div>
+        </div>
+    </div>
+
+    <!-- Seção de Acessos Rápidos por Perfil (Atalhos de Navegação) -->
+    <div class="mb-4">
+        <h6 class="fw-semibold text-secondary small text-uppercase mb-3">
+            <i class="bi bi-compass me-1"></i> Acessos Rápidos do Perfil
+        </h6>
+        <div class="row g-3">
+            {% if user.is_professor %}
+                <!-- Atalhos do Professor -->
+                <div class="col-md-4">
+                    <a href="{% url 'registros:nova_ocorrencia' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-warning h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-warning-subtle text-warning rounded-circle">
+                                    <i class="bi bi-pencil-square fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Nova Ocorrência</h6>
+                                    <small class="text-muted">Registrar fato escolar ocorrido em aula ou pátio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'registros:minhas_ocorrencias' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-primary h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-primary-subtle text-primary rounded-circle">
+                                    <i class="bi bi-journal-text fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Minhas Ocorrências</h6>
+                                    <small class="text-muted">Consultar e acompanhar o status dos seus registros</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'turmas:lista_turmas' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-success h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-success-subtle text-success rounded-circle">
+                                    <i class="bi bi-people fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Turmas e Alunos</h6>
+                                    <small class="text-muted">Consultar discentes e turmas em exercício</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            {% elif user.is_coordenacao %}
+                <!-- Atalhos da Coordenação Pedagógica -->
+                <div class="col-md-4">
+                    <a href="{% url 'acompanhamento:triagem' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-primary h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-primary-subtle text-primary rounded-circle">
+                                    <i class="bi bi-kanban fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Triagem de Ocorrências</h6>
+                                    <small class="text-muted">Averiguar, despachar e tramitar ocorrências pendentes</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'alunos:lista_alunos' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-info h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-info-subtle text-info rounded-circle">
+                                    <i class="bi bi-person-lines-fill fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Prontuário de Estudantes</h6>
+                                    <small class="text-muted">Histórico comportamental individual para apoio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'turmas:lista_turmas' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-success h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-3 bg-success-subtle text-success rounded-circle">
+                                    <i class="bi bi-diagram-3 fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Turmas Escolares</h6>
+                                    <small class="text-muted">Relação de turmas, séries e estudantes matriculados</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            {% elif user.is_admin %}
+                <!-- Atalhos do Administrador -->
+                <div class="col-md-3">
+                    <a href="{% url 'usuarios:painel_admin' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-primary h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-speedometer2 text-primary fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">Gestão Admin</h6>
+                                    <small class="text-muted">Usuários e acessos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'acompanhamento:triagem' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-warning h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-kanban text-warning fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">Triagem Pedagógica</h6>
+                                    <small class="text-muted">Fila de ocorrências</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'registros:nova_ocorrencia' %}" class="text-decoration-none">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-success h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-pencil-square text-success fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">Nova Ocorrência</h6>
+                                    <small class="text-muted">Registrar fato</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'admin:index' %}" class="text-decoration-none" target="_blank">
+                        <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-secondary h-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-sliders text-secondary fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">Django Admin</h6>
+                                    <small class="text-muted">Painel avançado</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -45,7 +209,7 @@
                     </div>
                 </div>
                 <h2 class="fw-bold mb-1">{{ total_ocorrencias }}</h2>
-                <span class="text-muted small">Ocorrências registradas</span>
+                <span class="text-muted small">Ocorrências no sistema</span>
             </div>
         </div>
 
@@ -109,7 +273,7 @@
 
     <!-- Tabela de Ocorrências Recentes -->
     <div class="sigoe-card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
             <h5 class="fw-semibold mb-0 text-dark">
                 <i class="bi bi-clock-history text-primary me-2"></i>
                 {% if user.is_professor %}Minhas Últimas Ocorrências{% else %}Últimas Ocorrências Registradas{% endif %}
@@ -153,9 +317,15 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{% url 'admin:registros_ocorrencia_change' oc.id %}" class="btn btn-outline-secondary btn-sm" title="Visualizar Detalhes">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
+                                    {% if user.is_coordenacao or user.is_admin %}
+                                        <a href="{% url 'acompanhamento:detalhe_ocorrencia' oc.id %}" class="btn btn-outline-primary btn-sm" title="Tramitar Ocorrência">
+                                            <i class="bi bi-box-arrow-in-right me-1"></i> Tramitar
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'registros:minhas_ocorrencias' %}" class="btn btn-outline-secondary btn-sm" title="Ver Ocorrências">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -167,7 +337,7 @@
                     <div class="text-muted mb-2">
                         <i class="bi bi-check2-circle fs-1 text-success"></i>
                     </div>
-                    <h6 class="fw-semibold text-dark">Nenhuma ocorrência pendente no momento</h6>
+                    <h6 class="fw-semibold text-dark">Nenhuma ocorrência registrada no momento</h6>
                     <p class="text-muted small mb-0">Novos registros efetuados aparecerão nesta lista.</p>
                 </div>
             {% endif %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Acesso Não Autorizado | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <div class="sigoe-card p-5">
+                <div class="mb-3 text-warning">
+                    <i class="bi bi-shield-lock-fill" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-2">Acesso Não Autorizado</h3>
+                <p class="text-muted mb-4">
+                    Seu perfil atual (<strong class="text-primary">{{ user.get_perfil_display }}</strong>) não possui permissão para acessar esta funcionalidade.
+                </p>
+
+                {% if perfis_permitidos %}
+                    <div class="alert alert-light border small text-muted text-start mb-4">
+                        <i class="bi bi-info-circle me-1 text-primary"></i>
+                        Esta área é reservada para:
+                        <ul class="mb-0 mt-1">
+                            {% for p in perfis_permitidos %}
+                                <li><strong>{{ p }}</strong></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'core:home' %}" class="btn btn-sigoe-primary">
+                        <i class="bi bi-house-door me-1"></i> Voltar ao Início
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Página Anterior
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

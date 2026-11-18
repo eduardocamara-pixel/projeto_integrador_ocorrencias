@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Painel Administrativo | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Administração</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-gear-fill text-primary me-2"></i>Painel Geral de Administração
+            </h3>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNovoUsuario" aria-expanded="false" aria-controls="collapseNovoUsuario">
+                <i class="bi bi-person-plus-fill me-1"></i> Novo Usuário
+            </button>
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                <i class="bi bi-sliders me-1"></i> Django Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Indicadores Gerais do Sistema -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Total de Usuários</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_usuarios }}</h3>
+                <small class="text-muted">{{ total_professores }} profs &bull; {{ total_coordenacao }} coord</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Turmas Cadastradas</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_turmas }}</h3>
+                <small class="text-muted">{{ total_alunos }} discentes matriculados</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Categorias de Ocorrência</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_categorias }}</h3>
+                <small class="text-muted"><a href="{% url 'admin:registros_categoriaocorrencia_changelist' %}" target="_blank">Gerenciar no Admin</a></small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Total de Ocorrências</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_ocorrencias }}</h3>
+                <small class="text-muted">Histórico consolidado</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário Colapsável de Cadastro de Novo Usuário -->
+    <div class="collapse mb-4" id="collapseNovoUsuario">
+        <div class="sigoe-card border-primary">
+            <div class="card-header bg-primary-subtle text-primary fw-semibold">
+                <i class="bi bi-person-plus me-2"></i>Cadastrar Novo Usuário no Sistema
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-secondary">{{ cadastro_form.nome.label }} *</label>
+                            {{ cadastro_form.nome }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-secondary">{{ cadastro_form.email.label }} *</label>
+                            {{ cadastro_form.email }}
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-secondary">{{ cadastro_form.perfil.label }} *</label>
+                            {{ cadastro_form.perfil }}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold text-secondary">{{ cadastro_form.password.label }} *</label>
+                            {{ cadastro_form.password }}
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center mt-4">
+                            <div class="form-check">
+                                {{ cadastro_form.ativo }}
+                                <label class="form-check-label small fw-semibold text-secondary" for="{{ cadastro_form.ativo.id_for_label }}">
+                                    Acesso Ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#collapseNovoUsuario">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Criar Conta de Usuário
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gestão de Usuários Cadastrados -->
+    <div class="sigoe-card">
+        <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <h5 class="fw-semibold mb-0 text-dark">
+                <i class="bi bi-people-fill text-primary me-2"></i>Gestão de Usuários e Permissões
+            </h5>
+            <!-- Filtro por perfil e busca -->
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="busca" class="form-control form-control-sm" placeholder="Buscar por nome ou e-mail..." value="{{ busca }}">
+                <select name="perfil" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Todos os perfis</option>
+                    {% for p_val, p_label in perfil_choices %}
+                        <option value="{{ p_val }}" {% if perfil_selecionado == p_val %}selected{% endif %}>{{ p_label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-3">Nome</th>
+                            <th>E-mail</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Cadastro</th>
+                            <th class="text-end pe-3">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td class="ps-3 fw-semibold text-dark">{{ u.nome }}</td>
+                            <td><span class="text-muted small">{{ u.email }}</span></td>
+                            <td>
+                                {% if u.perfil == 'ADMIN' %}
+                                    <span class="user-badge badge-admin">Administrador</span>
+                                {% elif u.perfil == 'COORDENACAO' %}
+                                    <span class="user-badge badge-coordenacao">Coordenação</span>
+                                {% else %}
+                                    <span class="user-badge badge-professor">Professor</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.ativo %}
+                                    <span class="badge bg-success-subtle text-success border">Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">{{ u.data_criacao|date:"d/m/Y" }}</td>
+                            <td class="text-end pe-3">
+                                {% if u != user %}
+                                    <a href="{% url 'usuarios:toggle_status_usuario' u.id %}" class="btn btn-sm {% if u.ativo %}btn-outline-danger{% else %}btn-outline-success{% endif %}" title="{% if u.ativo %}Desativar Acesso{% else %}Ativar Acesso{% endif %}">
+                                        {% if u.ativo %}
+                                            <i class="bi bi-person-x"></i> Desativar
+                                        {% else %}
+                                            <i class="bi bi-person-check"></i> Ativar
+                                        {% endif %}
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border">Você</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Nenhum usuário encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
