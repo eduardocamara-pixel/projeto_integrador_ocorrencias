@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Central de Relatórios | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Relatórios</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-file-earmark-bar-graph-fill text-primary me-2"></i>Central de Relatórios Oficiais (RF10)
+            </h3>
+            <p class="text-muted small mb-0">Emissão de diagnósticos institucionais, atas e relatórios pedagógicos formatados para impressão.</p>
+        </div>
+        <div>
+            <a href="{% url 'core:home' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Início
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid de Tipos de Relatórios -->
+    <div class="row g-4 mb-4">
+
+        <!-- Card 1: Relatório Consolidado Geral -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column border-primary">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-primary-subtle text-primary rounded-3">
+                        <i class="bi bi-file-earmark-text-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Relatório Geral</h5>
+                        <small class="text-muted">Visão Gerencial da Instituição</small>
+                    </div>
+                </div>
+                <p class="small text-secondary mb-4 flex-grow-1">
+                    Panorama geral com filtros por período, turmas e categorias. Inclui taxas de resolução e layout padrão A4 com campos para assinaturas oficiais.
+                </p>
+                <div class="mt-auto">
+                    <a href="{% url 'relatorios:relatorio_geral' %}" class="btn btn-primary w-100 fw-semibold">
+                        <i class="bi bi-printer-fill me-1"></i> Gerar Relatório Geral
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Relatório Diagnóstico por Turma -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column border-success">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-success-subtle text-success rounded-3">
+                        <i class="bi bi-diagram-3-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Diagnóstico por Turma</h5>
+                        <small class="text-muted">Análise de Clima Escolar</small>
+                    </div>
+                </div>
+                <p class="small text-secondary mb-3">
+                    Mapeamento de convivência de uma turma específica, identificando os tipos de ocorrências e o índice de resolução de casos.
+                </p>
+                <form method="get" action="" onsubmit="event.preventDefault(); const val=document.getElementById('selectTurmaRel').value; if(val) window.location.href='/relatorios/turma/' + val + '/';">
+                    <div class="mb-3">
+                        <select id="selectTurmaRel" class="form-select form-select-sm" required>
+                            <option value="">Selecione uma turma...</option>
+                            {% for t in turmas %}
+                                <option value="{{ t.id }}">{{ t.nome }} ({{ t.ano_letivo }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 fw-semibold">
+                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Emitir Relatório da Turma
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Card 3: Prontuários e Histórico Individual -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column border-info">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="p-3 bg-info-subtle text-info rounded-3">
+                        <i class="bi bi-person-lines-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Prontuário Individual</h5>
+                        <small class="text-muted">Dossiê do Estudante</small>
+                    </div>
+                </div>
+                <p class="small text-secondary mb-4 flex-grow-1">
+                    Linha do tempo longitudinal com todos os registros, escutas, termos de compromisso e intervenções pedagógicas de um discente.
+                </p>
+                <div class="mt-auto">
+                    <a href="{% url 'alunos:lista_alunos' %}" class="btn btn-outline-info text-dark w-100 fw-semibold">
+                        <i class="bi bi-search me-1"></i> Buscar Estudante
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

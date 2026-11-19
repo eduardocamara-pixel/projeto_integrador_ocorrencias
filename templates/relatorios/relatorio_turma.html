@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnóstico da Turma: {{ turma.nome }} | SIGOE{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    body { background-color: #ffffff !important; font-size: 11pt; }
+    .sigoe-navbar, .sigoe-footer, .d-print-none, .alert-container { display: none !important; }
+    .container, .container-xl { max-width: 100% !important; padding: 0 !important; }
+    .sigoe-card { border: none !important; box-shadow: none !important; }
+}
+.report-header {
+    border-bottom: 2px solid #0f766e;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Barra de Controle -->
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <a href="{% url 'relatorios:painel' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Central de Relatórios
+        </a>
+        <button onclick="window.print()" class="btn btn-success btn-sm fw-semibold">
+            <i class="bi bi-printer-fill me-1"></i> Imprimir Diagnóstico
+        </button>
+    </div>
+
+    <!-- FOLHA OFICIAL DA TURMA -->
+    <div class="sigoe-card p-4 p-md-5 bg-white">
+
+        <!-- Cabeçalho -->
+        <div class="report-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-diagram-3-fill text-success me-2"></i>SIGOE &mdash; Diagnóstico de Turma
+                </h4>
+                <div class="text-secondary small">Acompanhamento de Convivência e Clima Escolar</div>
+            </div>
+            <div class="text-end text-muted small">
+                <div><strong>Emissão:</strong> {{ data_emissao|date:"d/m/Y \à\s H:i" }}</div>
+                <div><strong>Turma:</strong> {{ turma.nome }} ({{ turma.ano_letivo }})</div>
+            </div>
+        </div>
+
+        <div class="text-center my-3">
+            <h4 class="fw-bold text-dark text-uppercase mb-1">{{ turma.nome }} &mdash; {{ turma.serie }}</h4>
+            <p class="text-muted small mb-0">Turno: <strong>{{ turma.get_turno_display }}</strong> &bull; Total de Discentes Matriculados: <strong>{{ turma.matriculas.count }}</strong></p>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="row g-2 mb-4 text-center">
+            <div class="col-4">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-muted small d-block">Total de Ocorrências</span>
+                    <strong class="fs-5 text-dark">{{ total_ocorrencias }}</strong>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-warning small d-block">Em Acompanhamento</span>
+                    <strong class="fs-5 text-warning">{{ total_em_aberto }}</strong>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-success small d-block">Tratadas e Concluídas</span>
+                    <strong class="fs-5 text-success">{{ total_concluidas }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Frequência por Categoria -->
+        <h6 class="fw-bold text-dark mb-2">Incidência por Categoria Disciplinar:</h6>
+        <div class="row g-2 mb-4">
+            {% for cat in categorias_dist %}
+                <div class="col-md-4">
+                    <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center small">
+                        <span>{{ cat.nome }}</span>
+                        <span class="badge bg-secondary">{{ cat.qtd }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-muted small">Nenhuma ocorrência registrada nesta turma.</div>
+            {% endfor %}
+        </div>
+
+        <!-- Histórico de Casos -->
+        <h6 class="fw-bold text-dark mb-2">Histórico de Registros:</h6>
+        <table class="table table-bordered table-sm align-middle small mb-4">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Data</th>
+                    <th>Estudante</th>
+                    <th>Categoria</th>
+                    <th>Professor Relator</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oc in ocorrencias %}
+                <tr>
+                    <td class="text-center">{{ oc.data_ocorrencia|date:"d/m/Y H:i" }}</td>
+                    <td class="fw-semibold">{{ oc.aluno.nome }}</td>
+                    <td>{{ oc.categoria.nome }}</td>
+                    <td>{{ oc.professor.nome }}</td>
+                    <td class="text-center">{{ oc.get_status_display }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-3 text-muted">Turma sem ocorrências no ano letivo.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Assinaturas -->
+        <div class="row pt-5 mt-4 text-center">
+            <div class="col-6">
+                <div class="border-top border-dark mx-auto pt-2" style="max-width: 260px;">
+                    <strong class="d-block small">Coordenação Pedagógica</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="border-top border-dark mx-auto pt-2" style="max-width: 260px;">
+                    <strong class="d-block small">Professor Representante / Regente</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

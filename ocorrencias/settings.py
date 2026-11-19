@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'turmas.apps.TurmasConfig',
     'registros.apps.RegistrosConfig',
     'acompanhamento.apps.AcompanhamentoConfig',
+    'relatorios.apps.RelatoriosConfig',
 ]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'

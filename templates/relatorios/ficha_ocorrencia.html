@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Ficha da Ocorrência #{{ oc.id }} | SIGOE{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    body { background-color: #ffffff !important; font-size: 11pt; }
+    .sigoe-navbar, .sigoe-footer, .d-print-none, .alert-container { display: none !important; }
+    .container, .container-xl { max-width: 100% !important; padding: 0 !important; }
+    .sigoe-card { border: none !important; box-shadow: none !important; }
+    .report-box { border: 1px solid #333 !important; }
+}
+.report-header {
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Barra de Controle -->
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <a href="{% url 'acompanhamento:detalhe_ocorrencia' oc.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar à Ocorrência
+        </a>
+        <button onclick="window.print()" class="btn btn-primary btn-sm fw-semibold">
+            <i class="bi bi-printer-fill me-1"></i> Imprimir Ficha Oficial / Ata
+        </button>
+    </div>
+
+    <!-- FOLHA OFICIAL DA OCORRÊNCIA (Layout A4) -->
+    <div class="sigoe-card p-4 p-md-5 bg-white">
+
+        <!-- Cabeçalho -->
+        <div class="report-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>SIGOE &mdash; Gestão Escolar
+                </h4>
+                <div class="text-secondary small">Ata Oficial de Registro e Atendimento Pedagógico</div>
+            </div>
+            <div class="text-end text-muted small">
+                <div><strong>Ocorrência Nº:</strong> #{{ oc.id }}</div>
+                <div><strong>Emissão:</strong> {{ data_emissao|date:"d/m/Y \à\s H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="text-center my-3">
+            <h5 class="fw-bold text-dark text-uppercase mb-0">Ficha Individual de Ocorrência Escolar</h5>
+            <small class="text-muted">Documento lavrado sob os princípios pedagógicos, do ECA e da LGPD</small>
+        </div>
+
+        <!-- Identificação do Discente e Fato -->
+        <div class="border rounded p-3 mb-3 bg-light">
+            <div class="row g-2 small">
+                <div class="col-sm-6">
+                    <strong>Estudante:</strong> {{ oc.aluno.nome }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Matrícula:</strong> {{ oc.aluno.matricula }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Turma:</strong> {{ oc.turma.nome }} ({{ oc.turma.serie }})
+                </div>
+                <div class="col-sm-6">
+                    <strong>Turno:</strong> {{ oc.turma.get_turno_display }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Data e Horário do Fato:</strong> {{ oc.data_ocorrencia|date:"d/m/Y \à\s H:i" }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Local do Fato:</strong> {{ oc.local }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Professor Relator:</strong> {{ oc.professor.nome }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Categoria:</strong> {{ oc.categoria.nome }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Relato Fático -->
+        <div class="mb-3">
+            <h6 class="fw-bold text-dark mb-1 small text-uppercase">1. Relato Fático e Descritivo:</h6>
+            <div class="p-3 border rounded bg-white small text-dark" style="min-height: 80px;">
+                {{ oc.descricao|linebreaksbr }}
+            </div>
+        </div>
+
+        {% if oc.providencias_iniciais %}
+        <div class="mb-3">
+            <h6 class="fw-bold text-dark mb-1 small text-uppercase">2. Providências Iniciais do Professor:</h6>
+            <div class="p-3 border rounded bg-white small text-secondary">
+                {{ oc.providencias_iniciais|linebreaksbr }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Pareceres Pedagógicos e Encaminhamentos -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-dark mb-1 small text-uppercase">3. Pareceres Pedagógicos, Atas de Reunião e Encaminhamentos:</h6>
+            {% for acomp in acompanhamentos %}
+                <div class="p-3 mb-2 border rounded bg-white small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong>{{ acomp.get_tipo_registro_display }}</strong>
+                        <span class="text-muted">{{ acomp.data_registro|date:"d/m/Y H:i" }} &bull; Resp: {{ acomp.responsavel.nome }}</span>
+                    </div>
+                    <p class="mb-1 text-dark"><strong>Parecer:</strong> {{ acomp.observacao }}</p>
+                    {% if acomp.encaminhamento %}
+                        <p class="mb-0 text-secondary"><strong>Encaminhamento/Prazos:</strong> {{ acomp.encaminhamento }}</p>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="p-3 border rounded bg-light text-muted small text-center">
+                    Aguardando intervenção pedagógica formal da Coordenação.
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Termo de Ciência e Assinaturas -->
+        <div class="mt-4 pt-3 border-top">
+            <p class="small text-muted mb-4 text-center">
+                Declaro que tive ciência dos fatos narrados nesta ata e participei da orientação e alinhamento pedagógico promovido pela instituição escolar.
+            </p>
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3">
+                    <div class="border-top border-dark pt-1">
+                        <small class="fw-bold d-block">Estudante</small>
+                        <span class="text-muted" style="font-size: 0.7rem;">Assinatura</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border-top border-dark pt-1">
+                        <small class="fw-bold d-block">Pai / Responsável Legal</small>
+                        <span class="text-muted" style="font-size: 0.7rem;">Assinatura</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border-top border-dark pt-1">
+                        <small class="fw-bold d-block">Professor Relator</small>
+                        <span class="text-muted" style="font-size: 0.7rem;">Assinatura</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="border-top border-dark pt-1">
+                        <small class="fw-bold d-block">Coordenação Pedagógica</small>
+                        <span class="text-muted" style="font-size: 0.7rem;">Assinatura e Carimbo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

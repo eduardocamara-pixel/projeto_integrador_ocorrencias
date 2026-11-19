@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatório Geral de Ocorrências | SIGOE{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    body { background-color: #ffffff !important; font-size: 11pt; }
+    .sigoe-navbar, .sigoe-footer, .d-print-none, .alert-container { display: none !important; }
+    .container, .container-xl { max-width: 100% !important; padding: 0 !important; }
+    .sigoe-card { border: none !important; box-shadow: none !important; }
+    .card-header, .table-light { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page-break { page-break-after: always; }
+}
+.report-header {
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Barra de Controle (Oculta na Impressão) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <a href="{% url 'relatorios:painel' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Central de Relatórios
+        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-primary btn-sm fw-semibold">
+                <i class="bi bi-printer-fill me-1"></i> Imprimir / Salvar como PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtro de Emissão (Oculto na Impressão) -->
+    <div class="sigoe-card p-3 mb-4 d-print-none">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Data Inicial</label>
+                <input type="date" name="data_inicio" class="form-control form-control-sm" value="{{ data_inicio }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Data Final</label>
+                <input type="date" name="data_fim" class="form-control form-control-sm" value="{{ data_fim }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Todos os status</option>
+                    <option value="REGISTRADA" {% if status_selecionado == 'REGISTRADA' %}selected{% endif %}>Registrada</option>
+                    <option value="EM_ANALISE" {% if status_selecionado == 'EM_ANALISE' %}selected{% endif %}>Em Análise</option>
+                    <option value="EM_ACOMPANHAMENTO" {% if status_selecionado == 'EM_ACOMPANHAMENTO' %}selected{% endif %}>Em Acompanhamento</option>
+                    <option value="ENCAMINHADA" {% if status_selecionado == 'ENCAMINHADA' %}selected{% endif %}>Encaminhada</option>
+                    <option value="CONCLUIDA" {% if status_selecionado == 'CONCLUIDA' %}selected{% endif %}>Concluída</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-1">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1 fw-semibold py-1">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
+                </button>
+                <a href="{% url 'relatorios:relatorio_geral' %}" class="btn btn-outline-secondary btn-sm py-1" title="Limpar">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- FOLHA OFICIAL DO RELATÓRIO (Layout A4) -->
+    <div class="sigoe-card p-4 p-md-5 bg-white">
+
+        <!-- Cabeçalho Institucional Oficial -->
+        <div class="report-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>SIGOE &mdash; Sistema de Gestão Escolar
+                </h4>
+                <div class="text-secondary small">Secretaria de Educação e Acompanhamento Pedagógico</div>
+            </div>
+            <div class="text-end text-muted small">
+                <div><strong>Emissão:</strong> {{ data_emissao|date:"d/m/Y \à\s H:i" }}</div>
+                <div><strong>Operador:</strong> {{ user.nome }}</div>
+            </div>
+        </div>
+
+        <div class="text-center my-4">
+            <h4 class="fw-bold text-dark text-uppercase mb-1">Relatório Geral Consolidado de Ocorrências</h4>
+            <p class="text-muted small mb-0">
+                {% if data_inicio or data_fim %}
+                    Período: <strong>{{ data_inicio|default:"Início" }}</strong> até <strong>{{ data_fim|default:"Hoje" }}</strong>
+                {% else %}
+                    Exercício Letivo Vigente
+                {% endif %}
+                {% if turma_selecionada %} &bull; Turma: <strong>{{ turma_selecionada.nome }}</strong>{% endif %}
+                {% if categoria_selecionada %} &bull; Categoria: <strong>{{ categoria_selecionada.nome }}</strong>{% endif %}
+            </p>
+        </div>
+
+        <!-- Indicadores Resumidos -->
+        <div class="row g-2 mb-4 text-center">
+            <div class="col-3">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-muted small d-block">Total de Casos</span>
+                    <strong class="fs-5 text-dark">{{ total }}</strong>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-warning small d-block">Em Aberto</span>
+                    <strong class="fs-5 text-warning">{{ total_em_aberto }}</strong>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-success small d-block">Concluídas</span>
+                    <strong class="fs-5 text-success">{{ total_concluidas }}</strong>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="p-2 border rounded bg-light">
+                    <span class="text-primary small d-block">Taxa de Resolução</span>
+                    <strong class="fs-5 text-primary">{{ taxa_resolucao }}%</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela das Ocorrências -->
+        <table class="table table-bordered table-sm align-middle small mb-5">
+            <thead class="table-light text-center">
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th>Data/Hora</th>
+                    <th>Estudante</th>
+                    <th>Matrícula</th>
+                    <th>Turma</th>
+                    <th>Categoria</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oc in ocorrencias %}
+                <tr>
+                    <td class="text-center font-monospace">#{{ oc.id }}</td>
+                    <td class="text-center">{{ oc.data_ocorrencia|date:"d/m/Y H:i" }}</td>
+                    <td class="fw-semibold">{{ oc.aluno.nome }}</td>
+                    <td class="text-center font-monospace">{{ oc.aluno.matricula }}</td>
+                    <td class="text-center">{{ oc.turma.nome }}</td>
+                    <td>{{ oc.categoria.nome }}</td>
+                    <td class="text-center">
+                        {{ oc.get_status_display }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        Nenhuma ocorrência encontrada para o filtro especificado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Bloco Oficial de Assinaturas -->
+        <div class="row pt-5 mt-4 text-center">
+            <div class="col-6">
+                <div class="border-top border-dark mx-auto pt-2" style="max-width: 280px;">
+                    <strong class="d-block small">Coordenação Pedagógica</strong>
+                    <span class="text-muted small" style="font-size: 0.75rem;">Assinatura e Carimbo</span>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="border-top border-dark mx-auto pt-2" style="max-width: 280px;">
+                    <strong class="d-block small">Direção Escolar</strong>
+                    <span class="text-muted small" style="font-size: 0.75rem;">Assinatura e Carimbo</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
