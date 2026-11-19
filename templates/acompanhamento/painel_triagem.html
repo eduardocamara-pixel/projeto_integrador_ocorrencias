@@ -26,75 +26,105 @@
         </div>
     </div>
 
+    <!-- Alerta de Urgência Pedagógica (Pendentes > 48h) -->
+    {% if total_atrasadas_48h > 0 %}
+        <div class="alert alert-warning border-warning d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+                <div>
+                    <strong class="d-block text-dark">Atenção da Gestão Pedagógica:</strong>
+                    <span class="small text-muted">Existem <strong>{{ total_atrasadas_48h }}</strong> ocorrência(s) registrada(s) há mais de 48 horas aguardando acolhimento inicial.</span>
+                </div>
+            </div>
+            <a href="{% url 'acompanhamento:triagem' %}?status=REGISTRADA" class="btn btn-warning btn-sm fw-semibold text-dark">
+                Filtrar Pendentes
+            </a>
+        </div>
+    {% endif %}
+
     <!-- Cards de Status do Ciclo de Vida (Filtro Rápido) -->
-    <div class="row g-3 mb-4">
+    <div class="row g-2 mb-4">
         <!-- Registrada -->
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-lg-2">
             <a href="{% url 'acompanhamento:triagem' %}?status=REGISTRADA" class="text-decoration-none">
-                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-secondary {% if status_selecionado == 'REGISTRADA' %}bg-light{% endif %}">
-                    <span class="text-muted small fw-semibold text-uppercase">Pendentes de Triagem</span>
-                    <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_registradas }}</h3>
-                    <small class="text-muted">Aguardando acolhimento</small>
+                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-secondary {% if status_selecionado == 'REGISTRADA' %}bg-light shadow-sm{% endif %}">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem;">Registrada</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-0">{{ total_registradas }}</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Aguardando</small>
                 </div>
             </a>
         </div>
 
         <!-- Em Análise -->
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-lg-2">
             <a href="{% url 'acompanhamento:triagem' %}?status=EM_ANALISE" class="text-decoration-none">
-                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-warning {% if status_selecionado == 'EM_ANALISE' %}bg-light{% endif %}">
-                    <span class="text-warning small fw-semibold text-uppercase">Em Análise</span>
-                    <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_em_analise }}</h3>
-                    <small class="text-muted">Averiguação em curso</small>
+                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-warning {% if status_selecionado == 'EM_ANALISE' %}bg-light shadow-sm{% endif %}">
+                    <span class="text-warning small fw-semibold text-uppercase" style="font-size: 0.7rem;">Em Análise</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-0">{{ total_em_analise }}</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Averiguação</small>
                 </div>
             </a>
         </div>
 
         <!-- Em Acompanhamento -->
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-lg-3">
             <a href="{% url 'acompanhamento:triagem' %}?status=EM_ACOMPANHAMENTO" class="text-decoration-none">
-                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-info {% if status_selecionado == 'EM_ACOMPANHAMENTO' %}bg-light{% endif %}">
-                    <span class="text-info small fw-semibold text-uppercase">Em Acompanhamento</span>
-                    <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_em_acompanhamento }}</h3>
-                    <small class="text-muted">Ações / Planos ativos</small>
+                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-info {% if status_selecionado == 'EM_ACOMPANHAMENTO' %}bg-light shadow-sm{% endif %}">
+                    <span class="text-info small fw-semibold text-uppercase" style="font-size: 0.7rem;">Em Acompanhamento</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-0">{{ total_em_acompanhamento }}</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Planos ativos</small>
+                </div>
+            </a>
+        </div>
+
+        <!-- Encaminhada -->
+        <div class="col-6 col-lg-2">
+            <a href="{% url 'acompanhamento:triagem' %}?status=ENCAMINHADA" class="text-decoration-none">
+                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-primary {% if status_selecionado == 'ENCAMINHADA' %}bg-light shadow-sm{% endif %}">
+                    <span class="text-primary small fw-semibold text-uppercase" style="font-size: 0.7rem;">Encaminhada</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-0">{{ total_encaminhadas }}</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Instâncias ext.</small>
                 </div>
             </a>
         </div>
 
         <!-- Concluídas -->
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-lg-3">
             <a href="{% url 'acompanhamento:triagem' %}?status=CONCLUIDA" class="text-decoration-none">
-                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-success {% if status_selecionado == 'CONCLUIDA' %}bg-light{% endif %}">
-                    <span class="text-success small fw-semibold text-uppercase">Concluídas</span>
-                    <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_concluidas }}</h3>
-                    <small class="text-muted">Casos finalizados</small>
+                <div class="sigoe-card sigoe-card-hover p-3 border-start border-4 border-success {% if status_selecionado == 'CONCLUIDA' %}bg-light shadow-sm{% endif %}">
+                    <span class="text-success small fw-semibold text-uppercase" style="font-size: 0.7rem;">Concluídas</span>
+                    <h4 class="fw-bold text-dark mt-1 mb-0">{{ total_concluidas }}</h4>
+                    <small class="text-muted" style="font-size: 0.75rem;">Casos finalizados</small>
                 </div>
             </a>
         </div>
     </div>
 
-    <!-- Barra de Filtros e Pesquisa -->
+    <!-- Barra de Filtros Multidimensionais -->
     <div class="sigoe-card p-3 mb-4">
         <form method="get" class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Busca Textual</label>
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" name="busca" class="form-control border-start-0" placeholder="Buscar por estudante, matrícula ou professor..." value="{{ busca }}">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="busca" class="form-control" placeholder="Estudante, matrícula ou professor..." value="{{ busca }}">
                 </div>
             </div>
 
-            <div class="col-sm-6 col-md-3">
-                <select name="status" class="form-select form-select-sm">
-                    <option value="">Todos os status</option>
-                    {% for st_val, st_label in status_choices %}
-                        <option value="{{ st_val }}" {% if status_selecionado == st_val %}selected{% endif %}>
-                            {{ st_label }}
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Turma</label>
+                <select name="turma" class="form-select form-select-sm">
+                    <option value="">Todas as turmas</option>
+                    {% for t in turmas %}
+                        <option value="{{ t.id }}" {% if turma_selecionada == t.id|stringformat:"s" %}selected{% endif %}>
+                            {{ t.nome }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="col-sm-6 col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Categoria</label>
                 <select name="categoria" class="form-select form-select-sm">
                     <option value="">Todas as categorias</option>
                     {% for cat in categorias %}
@@ -105,12 +135,24 @@
                 </select>
             </div>
 
-            <div class="col-md-2 d-flex gap-1">
-                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
-                    <i class="bi bi-filter"></i> Filtrar
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Todos os status</option>
+                    {% for st_val, st_label in status_choices %}
+                        <option value="{{ st_val }}" {% if status_selecionado == st_val %}selected{% endif %}>
+                            {{ st_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-sm-6 col-md-3 d-flex align-items-end gap-1">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1 fw-semibold py-1">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
                 </button>
-                {% if status_selecionado or categoria_selecionada or busca %}
-                    <a href="{% url 'acompanhamento:triagem' %}" class="btn btn-outline-secondary btn-sm" title="Limpar Filtros">
+                {% if status_selecionado or categoria_selecionada or turma_selecionada or data_inicio or data_fim or busca %}
+                    <a href="{% url 'acompanhamento:triagem' %}" class="btn btn-outline-secondary btn-sm py-1" title="Limpar Filtros">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 {% endif %}
@@ -156,6 +198,11 @@
                                 <td>
                                     {% if oc.status == 'REGISTRADA' %}
                                         <span class="badge bg-secondary-subtle text-secondary border">Registrada</span>
+                                        {% if oc.data_registro <= limite_48h %}
+                                            <span class="badge bg-danger text-white ms-1" title="Pendente há mais de 48h sem acolhimento">
+                                                <i class="bi bi-exclamation-circle-fill"></i> +48h
+                                            </span>
+                                        {% endif %}
                                     {% elif oc.status == 'EM_ANALISE' %}
                                         <span class="badge bg-warning-subtle text-warning border">Em Análise</span>
                                     {% elif oc.status == 'EM_ACOMPANHAMENTO' %}

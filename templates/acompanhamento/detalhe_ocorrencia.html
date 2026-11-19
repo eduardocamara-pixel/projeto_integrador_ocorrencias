@@ -30,6 +30,40 @@
         </div>
     </div>
 
+    <!-- Ciclo de Vida da Ocorrência (Status Progress Stepper) -->
+    <div class="sigoe-card p-3 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 {% if ocorrencia.status == 'REGISTRADA' %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                <span class="badge rounded-circle {% if ocorrencia.status == 'REGISTRADA' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}" style="width: 24px; height: 24px; line-height: 16px;">1</span>
+                <span>Registrada</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted d-none d-sm-inline"></i>
+
+            <div class="d-flex align-items-center gap-2 {% if ocorrencia.status == 'EM_ANALISE' %}fw-bold text-warning{% else %}text-muted{% endif %}">
+                <span class="badge rounded-circle {% if ocorrencia.status == 'EM_ANALISE' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}" style="width: 24px; height: 24px; line-height: 16px;">2</span>
+                <span>Em Análise</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted d-none d-sm-inline"></i>
+
+            <div class="d-flex align-items-center gap-2 {% if ocorrencia.status == 'EM_ACOMPANHAMENTO' %}fw-bold text-info{% else %}text-muted{% endif %}">
+                <span class="badge rounded-circle {% if ocorrencia.status == 'EM_ACOMPANHAMENTO' %}bg-info text-white{% else %}bg-secondary text-white{% endif %}" style="width: 24px; height: 24px; line-height: 16px;">3</span>
+                <span>Em Acompanhamento</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted d-none d-sm-inline"></i>
+
+            <div class="d-flex align-items-center gap-2 {% if ocorrencia.status == 'ENCAMINHADA' %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                <span class="badge rounded-circle {% if ocorrencia.status == 'ENCAMINHADA' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}" style="width: 24px; height: 24px; line-height: 16px;">4</span>
+                <span>Encaminhada</span>
+            </div>
+            <i class="bi bi-chevron-right text-muted d-none d-sm-inline"></i>
+
+            <div class="d-flex align-items-center gap-2 {% if ocorrencia.status == 'CONCLUIDA' %}fw-bold text-success{% else %}text-muted{% endif %}">
+                <span class="badge rounded-circle {% if ocorrencia.status == 'CONCLUIDA' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}" style="width: 24px; height: 24px; line-height: 16px;">5</span>
+                <span>Concluída</span>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <!-- Coluna da Esquerda: Dados da Ocorrência e Tramitação -->
         <div class="col-lg-7">
@@ -169,6 +203,27 @@
                     <i class="bi bi-plus-circle-fill me-2"></i>Registrar Acompanhamento Pedagógico
                 </div>
                 <div class="card-body p-4">
+                    <!-- Modelos Rápidos de Preenchimento -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary d-block">
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Modelos Rápidos de Despacho:
+                        </label>
+                        <div class="d-flex flex-wrap gap-1">
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 0.75rem;" onclick="aplicarModelo('ORIENTACAO')">
+                                Diálogo / Orientação
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 0.75rem;" onclick="aplicarModelo('REUNIAO')">
+                                Reunião com Pais
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 0.75rem;" onclick="aplicarModelo('TERMO')">
+                                Termo de Convivência
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 0.75rem;" onclick="aplicarModelo('EXTERNO')">
+                                Encaminhamento Externo
+                            </button>
+                        </div>
+                    </div>
+
                     <form method="post" novalidate>
                         {% csrf_token %}
                         <input type="hidden" name="action" value="novo_acompanhamento">
@@ -241,4 +296,32 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function aplicarModelo(tipo) {
+        const selectTipo = document.getElementById('{{ acomp_form.tipo_registro.id_for_label }}');
+        const txtObs = document.getElementById('{{ acomp_form.observacao.id_for_label }}');
+        const txtEnc = document.getElementById('{{ acomp_form.encaminhamento.id_for_label }}');
+
+        if (tipo === 'ORIENTACAO') {
+            if (selectTipo) selectTipo.value = 'ORIENTACAO';
+            if (txtObs) txtObs.value = 'Realizada conversa individual de acolhimento e orientação pedagógica com o(a) estudante. Foram abordadas as normas de convivência coletiva e a importância do respeito mútuo em sala de aula.';
+            if (txtEnc) txtEnc.value = 'Estudante comprometeu-se a manter atitude colaborativa. Realizar monitoramento com os professores nos próximos 15 dias.';
+        } else if (tipo === 'REUNIAO') {
+            if (selectTipo) selectTipo.value = 'REUNIAO_RESPONSAVEIS';
+            if (txtObs) txtObs.value = 'Reunião pedagógica realizada com os pais/responsáveis legais do(a) estudante na coordenação. Apresentados os relatos fáticos dos docentes e ouvida a perspectiva da família para alinhamento pedagógico conjunto.';
+            if (txtEnc) txtEnc.value = 'Família informou que intensificará o acompanhamento da rotina escolar em casa. Agendado retorno com a coordenação em 30 dias.';
+        } else if (tipo === 'TERMO') {
+            if (selectTipo) selectTipo.value = 'TERMO_COMPROMISSO';
+            if (txtObs) txtObs.value = 'Elaborado e firmado Termo de Compromisso Pedagógico e Convivência Escolar com a participação ativa do estudante e anuência dos responsáveis.';
+            if (txtEnc) txtEnc.value = 'Acompanhamento semanal das condutas em sala de aula junto aos professores regentes.';
+        } else if (tipo === 'EXTERNO') {
+            if (selectTipo) selectTipo.value = 'ENCAMINHAMENTO_EXTERNO';
+            if (txtObs) txtObs.value = 'Identificada necessidade de suporte multidisciplinar especializado para a garantia integral dos direitos e do bem-estar do estudante, em conformidade com o ECA.';
+            if (txtEnc) txtEnc.value = 'Expedido ofício de encaminhamento ao serviço de assistência socioemocional/Conselho Tutelar competente para acompanhamento articulado com a unidade escolar.';
+        }
+    }
+</script>
 {% endblock %}
