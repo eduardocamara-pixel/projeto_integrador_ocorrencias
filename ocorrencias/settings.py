@@ -10,22 +10,33 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carregamento de variáveis de ambiente do arquivo .env
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    with open(env_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ.setdefault(key.strip(), val.strip().strip("'\""))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ezxq+b@j^%8+h_a=gv7p%mf8g#1&9rq9a@@(y%9w0f^5pspv4g'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ezxq+b@j^%8+h_a=gv7p%mf8g#1&9rq9a@@(y%9w0f^5pspv4g')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes', 't')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
 
 
 # Application definition
@@ -112,9 +123,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'pt-br')
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = os.getenv('TIME_ZONE', 'America/Sao_Paulo')
 
 USE_I18N = True
 
