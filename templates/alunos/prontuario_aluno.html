@@ -24,6 +24,11 @@
             <a href="{% url 'alunos:lista_alunos' %}" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i> Lista de Alunos
             </a>
+            {% if user.is_coordenacao or user.is_admin %}
+                <a href="{% url 'alunos:editar_aluno' aluno.id %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Editar Dados
+                </a>
+            {% endif %}
             {% if user.is_professor or user.is_admin %}
                 <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-warning btn-sm text-dark fw-semibold">
                     <i class="bi bi-plus-circle-fill me-1"></i> Nova Ocorrência

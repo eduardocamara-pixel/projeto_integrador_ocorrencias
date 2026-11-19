@@ -165,6 +165,9 @@
                             </td>
                             <td class="small text-muted">{{ u.data_criacao|date:"d/m/Y" }}</td>
                             <td class="text-end pe-3">
+                                <a href="{% url 'usuarios:editar_usuario' u.id %}" class="btn btn-sm btn-outline-primary me-1" title="Editar Usuário">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
                                 {% if u != user %}
                                     <a href="{% url 'usuarios:toggle_status_usuario' u.id %}" class="btn btn-sm {% if u.ativo %}btn-outline-danger{% else %}btn-outline-success{% endif %}" title="{% if u.ativo %}Desativar Acesso{% else %}Ativar Acesso{% endif %}">
                                         {% if u.ativo %}

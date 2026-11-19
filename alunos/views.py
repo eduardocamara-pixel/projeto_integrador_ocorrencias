@@ -1,6 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Aluno
+from .forms import AlunoForm
 from registros.models import Ocorrencia, StatusOcorrencia
 from turmas.models import MatriculaTurma, SituacaoMatricula
 from usuarios.decorators import coordenacao_required
@@ -59,4 +61,55 @@ def prontuario_aluno_view(request, pk):
         'total_ocorrencias': total_ocorrencias,
         'ocorrencias_em_aberto': ocorrencias_em_aberto,
         'ocorrencias_concluidas': ocorrencias_concluidas,
+    })
+
+
+@login_required
+@coordenacao_required
+def cadastrar_aluno_view(request):
+    """
+    Formulário para cadastrar um novo discente na instituição.
+    """
+    if request.method == 'POST':
+        form = AlunoForm(request.POST)
+        if form.is_valid():
+            aluno = form.save()
+            messages.success(request, f"Estudante '{aluno.nome}' (Matrícula: {aluno.matricula}) cadastrado(a) com sucesso!")
+            return redirect('alunos:prontuario_aluno', pk=aluno.pk)
+        else:
+            messages.error(request, "Por favor, corrija os erros no formulário de cadastro de aluno.")
+    else:
+        form = AlunoForm()
+
+    return render(request, 'alunos/form_aluno.html', {
+        'form': form,
+        'titulo': 'Cadastrar Novo Estudante',
+        'subtitulo': 'Preencha os dados cadastrais básicos do estudante.'
+    })
+
+
+@login_required
+@coordenacao_required
+def editar_aluno_view(request, pk):
+    """
+    Formulário para editar dados de um discente já existente.
+    """
+    aluno = get_object_or_404(Aluno, pk=pk)
+
+    if request.method == 'POST':
+        form = AlunoForm(request.POST, instance=aluno)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Cadastro do estudante '{aluno.nome}' atualizado com sucesso!")
+            return redirect('alunos:prontuario_aluno', pk=aluno.pk)
+        else:
+            messages.error(request, "Por favor, corrija os erros no formulário de edição de aluno.")
+    else:
+        form = AlunoForm(instance=aluno)
+
+    return render(request, 'alunos/form_aluno.html', {
+        'form': form,
+        'aluno': aluno,
+        'titulo': f'Editar Estudante: {aluno.nome}',
+        'subtitulo': 'Atualize os dados acadêmicos ou cadastrais do estudante.'
     })

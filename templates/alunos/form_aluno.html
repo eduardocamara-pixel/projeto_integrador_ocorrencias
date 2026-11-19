@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'alunos:lista_alunos' %}">Estudantes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-person-badge text-primary me-2"></i>{{ titulo }}
+        </h3>
+        <p class="text-muted small mb-0">{{ subtitulo }}</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="sigoe-card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0 text-dark">
+                        <i class="bi bi-person-vcard me-2 text-primary"></i>Dados Cadastrais do Discente
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 mb-3">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0 small">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.nome.id_for_label }}">
+                                    {{ form.nome.label }} *
+                                </label>
+                                {{ form.nome }}
+                                {% if form.nome.errors %}
+                                    <div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.matricula.id_for_label }}">
+                                    {{ form.matricula.label }} *
+                                </label>
+                                {{ form.matricula }}
+                                {% if form.matricula.errors %}
+                                    <div class="text-danger small mt-1">{{ form.matricula.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.data_nascimento.id_for_label }}">
+                                    {{ form.data_nascimento.label }} *
+                                </label>
+                                {{ form.data_nascimento }}
+                                <small class="text-muted d-block mt-1">{{ form.data_nascimento.help_text }}</small>
+                                {% if form.data_nascimento.errors %}
+                                    <div class="text-danger small mt-1">{{ form.data_nascimento.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center mt-md-4">
+                                <div class="form-check">
+                                    {{ form.ativo }}
+                                    <label class="form-check-label small fw-semibold text-secondary" for="{{ form.ativo.id_for_label }}">
+                                        Matrícula / Vínculo Ativo com a Instituição
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% if aluno %}{% url 'alunos:prontuario_aluno' aluno.pk %}{% else %}{% url 'alunos:lista_alunos' %}{% endif %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary fw-semibold px-4">
+                                <i class="bi bi-check2-circle me-1"></i> Salvar Estudante
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

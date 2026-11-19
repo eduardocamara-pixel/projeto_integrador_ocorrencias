@@ -7,5 +7,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('admin-painel/', views.painel_admin_view, name='painel_admin'),
+    path('admin-painel/usuario/<int:pk>/editar/', views.editar_usuario_view, name='editar_usuario'),
     path('admin-painel/usuario/<int:pk>/toggle-status/', views.toggle_status_usuario_view, name='toggle_status_usuario'),
 ]

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuário: {{ usuario_alvo.nome }} | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'usuarios:painel_admin' %}">Administração de Usuários</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Editar Usuário</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-person-gear text-primary me-2"></i>Editar Usuário: {{ usuario_alvo.nome }}
+        </h3>
+        <p class="text-muted small mb-0">Atualize os dados cadastrais, perfil de acesso ou redefina a senha deste usuário.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="sigoe-card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0 text-dark">
+                        <i class="bi bi-shield-lock me-2 text-primary"></i>Dados da Conta
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 mb-3">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0 small">{{ error }}</p>
+                                endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary">{{ form.nome.label }} *</label>
+                                {{ form.nome }}
+                                {% if form.nome.errors %}
+                                    <div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary">{{ form.email.label }} *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary">{{ form.perfil.label }} *</label>
+                                {{ form.perfil }}
+                                {% if form.perfil.errors %}
+                                    <div class="text-danger small mt-1">{{ form.perfil.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center mt-md-4">
+                                <div class="form-check">
+                                    {{ form.ativo }}
+                                    <label class="form-check-label small fw-semibold text-secondary" for="{{ form.ativo.id_for_label }}">
+                                        Acesso Ativo ao Sistema
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border mb-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1">
+                                <i class="bi bi-key me-1"></i>{{ form.nova_senha.label }}
+                            </label>
+                            {{ form.nova_senha }}
+                            <small class="text-muted d-block mt-1">Preencha apenas caso deseje redefinir a senha do usuário.</small>
+                            {% if form.nova_senha.errors %}
+                                <div class="text-danger small mt-1">{{ form.nova_senha.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'usuarios:painel_admin' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+                            </a>
+                            <button type="submit" class="btn btn-primary fw-semibold px-4">
+                                <i class="bi bi-check2-circle me-1"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

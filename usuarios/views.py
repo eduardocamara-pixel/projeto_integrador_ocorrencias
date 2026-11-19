@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
-from .forms import LoginForm, UsuarioCadastroForm
+from .forms import LoginForm, UsuarioCadastroForm, UsuarioEdicaoForm
 from .models import Usuario, PerfilUsuario
 from .decorators import admin_required
 from registros.models import Ocorrencia, CategoriaOcorrencia
@@ -149,3 +149,28 @@ def toggle_status_usuario_view(request, pk):
     status_str = "ativado" if usuario_alvo.ativo else "desativado"
     messages.success(request, f"Usuário '{usuario_alvo.nome}' foi {status_str} com sucesso.")
     return redirect('usuarios:painel_admin')
+
+
+@login_required
+@admin_required
+def editar_usuario_view(request, pk):
+    """
+    Edição de dados cadastrais e permissões de um usuário.
+    """
+    usuario_alvo = get_object_or_404(Usuario, pk=pk)
+
+    if request.method == 'POST':
+        form = UsuarioEdicaoForm(request.POST, instance=usuario_alvo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Dados do usuário '{usuario_alvo.nome}' atualizados com sucesso!")
+            return redirect('usuarios:painel_admin')
+        else:
+            messages.error(request, "Por favor, corrija os erros no formulário abaixo.")
+    else:
+        form = UsuarioEdicaoForm(instance=usuario_alvo)
+
+    return render(request, 'usuarios/form_usuario.html', {
+        'form': form,
+        'usuario_alvo': usuario_alvo,
+    })
