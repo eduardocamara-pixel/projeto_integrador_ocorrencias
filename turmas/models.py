@@ -56,6 +56,9 @@ class Turma(models.Model):
         verbose_name_plural = 'Turmas'
         ordering = ['-ano_letivo', 'nome']
         unique_together = ('nome', 'ano_letivo')
+        indexes = [
+            models.Index(fields=['ano_letivo', 'ativa'], name='turma_ano_ativa_idx'),
+        ]
 
     def __str__(self):
         return f"{self.nome} ({self.ano_letivo})"
@@ -100,6 +103,10 @@ class MatriculaTurma(models.Model):
         verbose_name_plural = 'Matrículas em Turmas'
         ordering = ['-data_entrada', 'aluno__nome']
         unique_together = ('aluno', 'turma', 'situacao')
+        indexes = [
+            models.Index(fields=['aluno', 'situacao'], name='matr_aluno_sit_idx'),
+            models.Index(fields=['turma', 'situacao'], name='matr_turma_sit_idx'),
+        ]
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.turma.nome} ({self.get_situacao_display()})"

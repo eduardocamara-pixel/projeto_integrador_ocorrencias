@@ -39,6 +39,9 @@ class CategoriaOcorrencia(models.Model):
         verbose_name = 'Categoria de Ocorrência'
         verbose_name_plural = 'Categorias de Ocorrências'
         ordering = ['nome']
+        indexes = [
+            models.Index(fields=['ativo'], name='cat_ocor_ativo_idx'),
+        ]
 
     def __str__(self):
         return self.nome
@@ -104,6 +107,11 @@ class Ocorrencia(models.Model):
         verbose_name = 'Ocorrência'
         verbose_name_plural = 'Ocorrências'
         ordering = ['-data_ocorrencia', '-data_registro']
+        indexes = [
+            models.Index(fields=['status'], name='ocorrencia_status_idx'),
+            models.Index(fields=['data_ocorrencia'], name='ocorrencia_dt_ocor_idx'),
+            models.Index(fields=['status', '-data_ocorrencia'], name='ocorrencia_stat_dt_idx'),
+        ]
 
     def __str__(self):
         return f"Ocorrência #{self.id} - {self.matricula_turma.aluno.nome} ({self.get_status_display()})"

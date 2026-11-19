@@ -92,6 +92,9 @@ class Usuario(AbstractUser):
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'
         ordering = ['nome']
+        indexes = [
+            models.Index(fields=['perfil', 'ativo'], name='usuario_perfil_ativo_idx'),
+        ]
 
     def __str__(self):
         return f"{self.nome} ({self.get_perfil_display()})"

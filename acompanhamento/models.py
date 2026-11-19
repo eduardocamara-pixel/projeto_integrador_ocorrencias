@@ -52,6 +52,10 @@ class Acompanhamento(models.Model):
         verbose_name = 'Acompanhamento Pedagógico'
         verbose_name_plural = 'Acompanhamentos Pedagógicos'
         ordering = ['-data_registro']
+        indexes = [
+            models.Index(fields=['-data_registro'], name='acomp_dt_reg_idx'),
+            models.Index(fields=['tipo_registro'], name='acomp_tipo_idx'),
+        ]
 
     def __str__(self):
         return f"Acompanhamento #{self.id} - Ocorrência #{self.ocorrencia_id} ({self.get_tipo_registro_display()})"
@@ -92,6 +96,9 @@ class HistoricoAlteracao(models.Model):
         verbose_name = 'Histórico de Alteração'
         verbose_name_plural = 'Histórico de Alterações'
         ordering = ['-data_hora']
+        indexes = [
+            models.Index(fields=['ocorrencia', '-data_hora'], name='hist_ocor_data_idx'),
+        ]
 
     def __str__(self):
         return f"{self.data_hora.strftime('%d/%m/%Y %H:%M')} - {self.usuario.nome}: {self.acao_realizada}"

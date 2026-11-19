@@ -38,6 +38,10 @@ class Aluno(models.Model):
         verbose_name = 'Aluno'
         verbose_name_plural = 'Alunos'
         ordering = ['nome']
+        indexes = [
+            models.Index(fields=['nome'], name='aluno_nome_idx'),
+            models.Index(fields=['ativo'], name='aluno_ativo_idx'),
+        ]
 
     def __str__(self):
         return f"{self.matricula} - {self.nome}"
