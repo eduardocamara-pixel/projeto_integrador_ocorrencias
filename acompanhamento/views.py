@@ -5,8 +5,11 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 from django.utils.dateparse import parse_date
+from django.core.paginator import Paginator
+from django.db.models import Q
 from registros.models import Ocorrencia, StatusOcorrencia, CategoriaOcorrencia
 from turmas.models import Turma
+from usuarios.models import Usuario
 from .models import Acompanhamento, HistoricoAlteracao
 from .forms import AcompanhamentoForm, AlterarStatusForm
 from usuarios.decorators import coordenacao_required
@@ -179,3 +182,61 @@ def detalhe_triagem_view(request, pk):
         'acomp_form': acomp_form,
         'status_form': status_form,
     })
+
+
+@login_required
+@coordenacao_required
+def auditoria_view(request):
+    """
+    Painel Geral de Auditoria e Rastreabilidade LGPD (RF12).
+    Apresenta todo o histórico imutável de alterações realizadas nas ocorrências escolares.
+    """
+    busca = request.GET.get('busca', '').strip()
+    usuario_id = request.GET.get('usuario', '')
+    data_inicio = request.GET.get('data_inicio', '')
+    data_fim = request.GET.get('data_fim', '')
+
+    logs = HistoricoAlteracao.objects.select_related(
+        'usuario',
+        'ocorrencia__matricula_turma__aluno'
+    ).order_by('-data_hora')
+
+    if busca:
+        logs = logs.filter(
+            Q(acao_realizada__icontains=busca) |
+            Q(descricao_alteracao__icontains=busca) |
+            Q(usuario__nome__icontains=busca) |
+            Q(ocorrencia__matricula_turma__aluno__nome__icontains=busca)
+        )
+
+    if usuario_id:
+        logs = logs.filter(usuario_id=usuario_id)
+
+    if data_inicio:
+        d_ini = parse_date(data_inicio)
+        if d_ini:
+            logs = logs.filter(data_hora__date__gte=d_ini)
+
+    if data_fim:
+        d_fim = parse_date(data_fim)
+        if d_fim:
+            logs = logs.filter(data_hora__date__lte=d_fim)
+
+    total_logs = logs.count()
+
+    paginator = Paginator(logs, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    usuarios = Usuario.objects.filter(ativo=True).order_by('nome')
+
+    context = {
+        'page_obj': page_obj,
+        'total_logs': total_logs,
+        'usuarios': usuarios,
+        'busca': busca,
+        'usuario_selecionado': usuario_id,
+        'data_inicio': data_inicio,
+        'data_fim': data_fim,
+    }
+    return render(request, 'acompanhamento/auditoria.html', context)

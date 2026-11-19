@@ -443,3 +443,26 @@ class NovasTelasSIGOETestCase(TestCase):
         res_consulta = self.client.get(reverse('registros:consulta_ocorrencias'))
         self.assertEqual(res_consulta.status_code, 200)
         self.assertContains(res_consulta, 'Consulta e Listagem de Ocorrências')
+
+    def test_relatorios_e_auditoria(self):
+        self.client.login(username='coord.geral@escola.gov.br', password='CoordPassword123')
+
+        # 1. Painel de relatórios
+        res_painel = self.client.get(reverse('relatorios:painel'))
+        self.assertEqual(res_painel.status_code, 200)
+        self.assertContains(res_painel, 'Central de Relatórios Oficiais')
+
+        # 2. Relatório geral consolidado
+        res_geral = self.client.get(reverse('relatorios:relatorio_geral'))
+        self.assertEqual(res_geral.status_code, 200)
+        self.assertContains(res_geral, 'Relatório Geral Consolidado de Ocorrências')
+
+        # 3. Trilha de auditoria
+        res_audit = self.client.get(reverse('acompanhamento:auditoria'))
+        self.assertEqual(res_audit.status_code, 200)
+        self.assertContains(res_audit, 'Trilha de Auditoria')
+
+        # 4. Roadmap de funcionalidades futuras
+        res_roadmap = self.client.get(reverse('core:roadmap'))
+        self.assertEqual(res_roadmap.status_code, 200)
+        self.assertContains(res_roadmap, 'Funcionalidades Futuras')

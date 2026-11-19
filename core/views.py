@@ -79,3 +79,12 @@ def home_view(request):
         )[:6]
 
     return render(request, 'core/home.html', context)
+
+
+@login_required
+def roadmap_view(request):
+    """
+    Interface de Funcionalidades Futuras e Evolução do SIGOE.
+    Apresenta os módulos e extensões do sistema planejados para o ecossistema educacional.
+    """
+    return render(request, 'core/roadmap.html')

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Roadmap de Funcionalidades Futuras | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Funcionalidades Futuras</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-rocket-takeoff-fill text-primary me-2"></i>Evolução do Sistema &mdash; Funcionalidades Futuras
+            </h3>
+            <p class="text-muted small mb-0">Roadmap estratégico e arquitetural para as próximas fases de expansão institucional do SIGOE.</p>
+        </div>
+        <div>
+            <a href="{% url 'core:home' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Voltar ao Início
+            </a>
+        </div>
+    </div>
+
+    <!-- Banner Informativo -->
+    <div class="sigoe-card p-4 mb-4 border-primary bg-primary-subtle bg-opacity-25">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-lightbulb-fill text-primary fs-1"></i>
+            <div>
+                <h5 class="fw-bold text-dark mb-1">Planejamento Modular &amp; Escalabilidade</h5>
+                <p class="small text-secondary mb-0">
+                    O SIGOE foi construído com arquitetura desacoplada em Django Apps, permitindo que novas integrações e recursos avançados sejam acoplados sem impactar as operações essenciais do MVP pedagógico.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de Funcionalidades Futuras -->
+    <div class="row g-4 mb-4">
+
+        <!-- 1. Notificação por WhatsApp / SMS -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-success-subtle text-success rounded-3">
+                        <i class="bi bi-whatsapp fs-3"></i>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning border">Fase 2 &bull; Em Estudo</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Comunicação Instantânea com Responsáveis</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Disparo automatizado de avisos pedagógicos, convocações de reunião e ciência de ocorrências via WhatsApp Business API e SMS para os responsáveis legais do estudante.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Notificação imediata de faltas ou fatos</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Confirmação de recebimento (LGPD)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 2. Assinatura Digital de Termos -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-primary-subtle text-primary rounded-3">
+                        <i class="bi bi-pen-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-info-subtle text-info border">Fase 2 &bull; Planejado</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Assinatura Eletrônica Gov.br / ICP</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Assinatura digital válida de termos de compromisso, advertências e atas por pais, estudantes e gestão diretamente pelo smartphone, eliminando o papel e arquivamento físico.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Integração com autenticação Gov.br</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Hash SHA-256 e carimbo de tempo</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3. Exportação e BI para Secretarias -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-secondary-subtle text-secondary rounded-3">
+                        <i class="bi bi-file-earmark-spreadsheet-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border">Fase 2 &bull; Prototipado</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Exportação de Microdados e BI</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Geração de pacotes de dados anonimizados em planilhas Excel (.xlsx) e CSV estruturados para consumo por secretarias municipais/estaduais e ferramentas como PowerBI / Looker.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Relatórios em lote por regional</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Conformidade com a LGPD</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4. PWA / Modo Offline para Professores -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-danger-subtle text-danger rounded-3">
+                        <i class="bi bi-phone-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-secondary border">Fase 3 &bull; Futuro</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">App Mobile PWA Offline</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Aplicativo web progressivo instalável em smartphones de professores para registrar ocorrências na quadra ou pátio sem internet, sincronizando assim que houver rede Wi-Fi.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Cache com Service Workers</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Sincronização em segundo plano</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 5. Inteligência Pedagógica Preventiva -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-info-subtle text-info rounded-3">
+                        <i class="bi bi-cpu-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-secondary border">Fase 3 &bull; Futuro</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Alertas Preditivos de Clima Escolar</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Algoritmos pedagógicos para identificar padrões recorrentes de conflito entre turmas ou estudantes antes do agravamento, sugerindo intervenções restaurativas preventivas.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Mapa de calor por local da escola</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Prevenção ao bullying e evasão</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 6. Portal do Aluno e da Família -->
+        <div class="col-md-6 col-lg-4">
+            <div class="sigoe-card h-100 p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 bg-warning-subtle text-warning rounded-3">
+                        <i class="bi bi-house-heart-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-secondary border">Fase 3 &bull; Futuro</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Área do Responsável e Estudante</h5>
+                <p class="small text-muted mb-3 flex-grow-1">
+                    Ambiente logado para os pais acompanharem a vida disciplinar, elogios e atitudes positivas registradas pelos professores, fortalecendo a parceria família-escola.
+                </p>
+                <ul class="list-unstyled small text-secondary mb-3">
+                    <li><i class="bi bi-check2 text-success me-1"></i> Visualização de reforços positivos</li>
+                    <li><i class="bi bi-check2 text-success me-1"></i> Canal direto de agendamento</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
