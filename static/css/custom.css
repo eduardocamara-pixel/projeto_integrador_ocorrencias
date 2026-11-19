@@ -1,20 +1,27 @@
 /* ==========================================================================
    SIGOE - Sistema Integrado de Gestão de Ocorrências Escolares
-   Estilos Customizados & Identidade Visual
+   Escola: CETI MARTINS NAPOLEÃO
+   Identidade Visual: Verde Escuro & Branco
    ========================================================================== */
 
 :root {
-    --sigoe-primary: #1e3a8a;
-    --sigoe-primary-hover: #1e40af;
-    --sigoe-primary-light: #eff6ff;
-    --sigoe-secondary: #0f766e;
-    --sigoe-accent: #3b82f6;
-    --sigoe-bg-soft: #f8fafc;
-    --sigoe-text-main: #1e293b;
-    --sigoe-text-muted: #64748b;
-    --sigoe-card-border: #e2e8f0;
-    --sigoe-card-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    /* Paleta Institucional Verde Escuro & Branco */
+    --sigoe-primary: #064e3b;          /* Verde escuro floresta / esmeralda profundo */
+    --sigoe-primary-hover: #04392b;    /* Verde escuro acentuado para hover */
+    --sigoe-primary-light: #ecfdf5;    /* Verde suave/menta claríssimo para fundos */
+    --sigoe-secondary: #0f766e;        /* Verde petróleo / teal para elementos secundários */
+    --sigoe-accent: #10b981;           /* Verde esmeralda vivo para destaques e botões */
+    --sigoe-accent-hover: #059669;     /* Verde médio para hover */
+    --sigoe-bg-soft: #f8fafc;          /* Fundo suave para contraste */
+    --sigoe-text-main: #0f172a;        /* Texto principal de alto contraste */
+    --sigoe-text-muted: #64748b;       /* Texto secundário */
+    --sigoe-card-border: #e2e8f0;      /* Borda sutil de cartões */
+    --sigoe-card-shadow: 0 4px 14px rgba(6, 78, 59, 0.06);
     --sigoe-radius: 0.75rem;
+
+    /* Sobrescrita de classes Bootstrap Primary */
+    --bs-primary: #064e3b;
+    --bs-primary-rgb: 6, 78, 59;
 }
 
 body {
@@ -32,13 +39,63 @@ main.main-content {
 }
 
 /* ==========================================================================
-   Barra de Navegação (Navbar)
+   Sobrescrita Global de Botões e Utilitários Primary (Bootstrap)
+   ========================================================================== */
+.btn-primary {
+    background-color: var(--sigoe-primary) !important;
+    border-color: var(--sigoe-primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--sigoe-primary-hover) !important;
+    border-color: var(--sigoe-primary-hover) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3) !important;
+}
+
+.btn-outline-primary {
+    color: var(--sigoe-primary) !important;
+    border-color: var(--sigoe-primary) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--sigoe-primary) !important;
+    border-color: var(--sigoe-primary) !important;
+    color: #ffffff !important;
+}
+
+.text-primary {
+    color: var(--sigoe-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--sigoe-primary) !important;
+    color: #ffffff !important;
+}
+
+.bg-primary-subtle {
+    background-color: var(--sigoe-primary-light) !important;
+    color: var(--sigoe-primary) !important;
+}
+
+.border-primary {
+    border-color: var(--sigoe-primary) !important;
+}
+
+/* ==========================================================================
+   Barra de Navegação (Navbar) - Verde Escuro Elegante
    ========================================================================== */
 .sigoe-navbar {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%);
+    box-shadow: 0 3px 12px rgba(6, 78, 59, 0.25);
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .sigoe-navbar .navbar-brand {
@@ -48,14 +105,19 @@ main.main-content {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: #ffffff !important;
 }
 
 .sigoe-navbar .brand-badge {
     background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
     font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
+    padding: 0.25rem 0.6rem;
     border-radius: 0.35rem;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .sigoe-navbar .nav-link {
@@ -63,12 +125,26 @@ main.main-content {
     font-size: 0.95rem;
     padding: 0.5rem 0.85rem !important;
     border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.9) !important;
     transition: all 0.2s ease-in-out;
 }
 
 .sigoe-navbar .nav-link:hover,
 .sigoe-navbar .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+}
+
+.sigoe-navbar .dropdown-menu {
+    border-radius: 0.65rem;
+    border: 1px solid rgba(6, 78, 59, 0.12);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.sigoe-navbar .dropdown-item:active,
+.sigoe-navbar .dropdown-item:hover {
+    background-color: var(--sigoe-primary-light);
+    color: var(--sigoe-primary);
 }
 
 .user-badge {
@@ -86,15 +162,15 @@ main.main-content {
 }
 
 .badge-professor {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
 }
 
 .badge-coordenacao {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 /* ==========================================================================
@@ -110,7 +186,7 @@ main.main-content {
 
 .sigoe-card-hover:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 8px 22px rgba(6, 78, 59, 0.12);
 }
 
 .sigoe-card .card-header {
@@ -125,7 +201,7 @@ main.main-content {
 }
 
 /* ==========================================================================
-   Tela de Login (Autenticação)
+   Tela de Login (Autenticação) - Visual Verde Escuro Institucional
    ========================================================================== */
 .login-container {
     min-height: calc(100vh - 180px);
@@ -141,15 +217,16 @@ main.main-content {
     background: #ffffff;
     border: 1px solid var(--sigoe-card-border);
     border-radius: 1rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 16px 32px -6px rgba(6, 78, 59, 0.15), 0 8px 16px -6px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
 
 .login-header {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%);
     color: #ffffff;
     padding: 2.25rem 2rem 1.75rem;
     text-align: center;
+    border-bottom: 3px solid #10b981;
 }
 
 .login-icon-circle {
@@ -157,7 +234,7 @@ main.main-content {
     height: 64px;
     margin: 0 auto 1rem;
     background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.35);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -174,9 +251,10 @@ main.main-content {
     color: var(--sigoe-primary);
 }
 
-.form-control:focus {
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.15);
+.form-control:focus,
+.form-select:focus {
+    border-color: #6ee7b7;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.2);
 }
 
 .btn-sigoe-primary {
@@ -194,7 +272,7 @@ main.main-content {
     background-color: var(--sigoe-primary-hover);
     border-color: var(--sigoe-primary-hover);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+    box-shadow: 0 4px 12px rgba(6, 78, 59, 0.35);
 }
 
 /* ==========================================================================
@@ -213,11 +291,11 @@ main.main-content {
 }
 
 /* ==========================================================================
-   Rodapé (Footer)
+   Rodapé (Footer) - Institucional CETI MARTINS NAPOLEÃO
    ========================================================================== */
 .sigoe-footer {
     background-color: #ffffff;
-    border-top: 1px solid var(--sigoe-card-border);
+    border-top: 2px solid #e2e8f0;
     padding: 1.5rem 0;
     color: var(--sigoe-text-muted);
     font-size: 0.875rem;
@@ -227,9 +305,11 @@ main.main-content {
 .sigoe-footer a {
     color: var(--sigoe-primary);
     text-decoration: none;
+    font-weight: 500;
 }
 
 .sigoe-footer a:hover {
+    color: var(--sigoe-primary-hover);
     text-decoration: underline;
 }
 
