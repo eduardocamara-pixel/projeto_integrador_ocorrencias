@@ -307,3 +307,139 @@ class NavegacaoPorPerfilTestCase(TestCase):
         # Verifica histórico de intervenções e auditoria
         self.assertEqual(ocorrencia.acompanhamentos.count(), 1)
         self.assertTrue(HistoricoAlteracao.objects.filter(ocorrencia=ocorrencia).count() >= 2)
+
+
+class NovasTelasSIGOETestCase(TestCase):
+    def setUp(self):
+        self.admin = Usuario.objects.create_superuser(
+            email='admin.sistema@escola.gov.br',
+            nome='Diretora Administradora',
+            password='AdminPassword123'
+        )
+        self.coordenador = Usuario.objects.create_user(
+            email='coord.geral@escola.gov.br',
+            nome='Coordenadora Geral',
+            password='CoordPassword123',
+            perfil=PerfilUsuario.COORDENACAO
+        )
+        self.professor = Usuario.objects.create_user(
+            email='prof.roberto@escola.gov.br',
+            nome='Roberto Docente',
+            password='ProfPassword123',
+            perfil=PerfilUsuario.PROFESSOR
+        )
+
+    def test_gestao_usuario_edicao(self):
+        self.client.login(username='admin.sistema@escola.gov.br', password='AdminPassword123')
+        # Acessa edição do professor
+        res = self.client.get(reverse('usuarios:editar_usuario', kwargs={'pk': self.professor.id}))
+        self.assertEqual(res.status_code, 200)
+
+        # Atualiza nome
+        post_data = {
+            'nome': 'Roberto Docente Atualizado',
+            'email': self.professor.email,
+            'perfil': PerfilUsuario.PROFESSOR,
+            'ativo': True,
+        }
+        res_post = self.client.post(reverse('usuarios:editar_usuario', kwargs={'pk': self.professor.id}), post_data)
+        self.assertRedirects(res_post, reverse('usuarios:painel_admin'))
+        self.professor.refresh_from_db()
+        self.assertEqual(self.professor.nome, 'Roberto Docente Atualizado')
+
+    def test_cadastro_e_edicao_aluno(self):
+        self.client.login(username='coord.geral@escola.gov.br', password='CoordPassword123')
+
+        # Acessa form de cadastro
+        res_get = self.client.get(reverse('alunos:cadastrar_aluno'))
+        self.assertEqual(res_get.status_code, 200)
+
+        # Cadastra novo aluno
+        post_data = {
+            'nome': 'Mariana Souza Dias',
+            'matricula': '2026-MAT01',
+            'data_nascimento': '2011-04-10',
+            'ativo': True
+        }
+        res_post = self.client.post(reverse('alunos:cadastrar_aluno'), post_data)
+        novo_aluno = Aluno.objects.filter(matricula='2026-MAT01').first()
+        self.assertIsNotNone(novo_aluno)
+        self.assertRedirects(res_post, reverse('alunos:prontuario_aluno', kwargs={'pk': novo_aluno.pk}))
+
+        # Edita aluno
+        res_edit = self.client.post(
+            reverse('alunos:editar_aluno', kwargs={'pk': novo_aluno.pk}),
+            {
+                'nome': 'Mariana Souza Dias Ramos',
+                'matricula': '2026-MAT01',
+                'data_nascimento': '2011-04-10',
+                'ativo': True
+            }
+        )
+        self.assertRedirects(res_edit, reverse('alunos:prontuario_aluno', kwargs={'pk': novo_aluno.pk}))
+        novo_aluno.refresh_from_db()
+        self.assertEqual(novo_aluno.nome, 'Mariana Souza Dias Ramos')
+
+    def test_cadastro_e_edicao_turma_e_matricula(self):
+        self.client.login(username='coord.geral@escola.gov.br', password='CoordPassword123')
+
+        # Cadastra turma
+        turma_data = {
+            'nome': '1º Ano Informática B',
+            'serie': '1º Ano Técnico',
+            'turno': TurnoTurma.VESPERTINO,
+            'ano_letivo': 2026,
+            'ativa': True
+        }
+        res_post = self.client.post(reverse('turmas:cadastrar_turma'), turma_data)
+        turma = Turma.objects.filter(nome='1º Ano Informática B').first()
+        self.assertIsNotNone(turma)
+        self.assertRedirects(res_post, reverse('turmas:detalhe_turma', kwargs={'pk': turma.pk}))
+
+        # Cria aluno e realiza matrícula via view matricular_aluno
+        aluno = Aluno.objects.create(
+            nome='Eduardo Lima',
+            matricula='2026-ED01',
+            data_nascimento=date(2009, 3, 12)
+        )
+        res_matr = self.client.post(
+            reverse('turmas:matricular_aluno', kwargs={'pk': turma.pk}),
+            {
+                'aluno': aluno.id,
+                'data_entrada': date.today().strftime('%Y-%m-%d'),
+                'situacao': SituacaoMatricula.ATIVA
+            }
+        )
+        self.assertRedirects(res_matr, reverse('turmas:detalhe_turma', kwargs={'pk': turma.pk}))
+        self.assertTrue(MatriculaTurma.objects.filter(aluno=aluno, turma=turma).exists())
+
+    def test_gestao_categorias(self):
+        self.client.login(username='coord.geral@escola.gov.br', password='CoordPassword123')
+
+        # Listagem
+        res_lista = self.client.get(reverse('registros:lista_categorias'))
+        self.assertEqual(res_lista.status_code, 200)
+
+        # Cadastro de categoria
+        res_cat = self.client.post(
+            reverse('registros:cadastrar_categoria'),
+            {
+                'nome': 'Dificuldade de Foco / Distração',
+                'descricao': 'Comportamentos dispersivos recorrentes.',
+                'ativo': True
+            }
+        )
+        self.assertRedirects(res_cat, reverse('registros:lista_categorias'))
+        cat = CategoriaOcorrencia.objects.filter(nome='Dificuldade de Foco / Distração').first()
+        self.assertIsNotNone(cat)
+
+        # Toggle status
+        self.client.get(reverse('registros:toggle_categoria', kwargs={'pk': cat.id}))
+        cat.refresh_from_db()
+        self.assertFalse(cat.ativo)
+
+    def test_consulta_multidimensional_ocorrencias(self):
+        self.client.login(username='coord.geral@escola.gov.br', password='CoordPassword123')
+        res_consulta = self.client.get(reverse('registros:consulta_ocorrencias'))
+        self.assertEqual(res_consulta.status_code, 200)
+        self.assertContains(res_consulta, 'Consulta e Listagem de Ocorrências')

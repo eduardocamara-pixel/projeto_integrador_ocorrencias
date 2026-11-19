@@ -36,7 +36,7 @@
                             <div class="alert alert-danger py-2 mb-3">
                                 {% for error in form.non_field_errors %}
                                     <p class="mb-0 small">{{ error }}</p>
-                                endfor %}
+                                {% endfor %}
                             </div>
                         {% endif %}
 

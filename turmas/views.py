@@ -44,9 +44,12 @@ def detalhe_turma_view(request, pk):
         aluno__ativo=True
     ).select_related('aluno').order_by('aluno__nome')
 
+    matricula_form = MatriculaTurmaForm(turma=turma)
+
     return render(request, 'turmas/detalhe_turma.html', {
         'turma': turma,
         'matriculas': matriculas,
+        'matricula_form': matricula_form,
     })
 
 

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'turmas:lista_turmas' %}">Turmas Escolares</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ titulo }}</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-diagram-3-fill text-primary me-2"></i>{{ titulo }}
+        </h3>
+        <p class="text-muted small mb-0">{{ subtitulo }}</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="sigoe-card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0 text-dark">
+                        <i class="bi bi-pencil-square me-2 text-primary"></i>Configuração da Turma
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 mb-3">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0 small">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.nome.id_for_label }}">
+                                    {{ form.nome.label }} *
+                                </label>
+                                {{ form.nome }}
+                                {% if form.nome.errors %}
+                                    <div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.ano_letivo.id_for_label }}">
+                                    {{ form.ano_letivo.label }} *
+                                </label>
+                                {{ form.ano_letivo }}
+                                {% if form.ano_letivo.errors %}
+                                    <div class="text-danger small mt-1">{{ form.ano_letivo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.serie.id_for_label }}">
+                                    {{ form.serie.label }} *
+                                </label>
+                                {{ form.serie }}
+                                {% if form.serie.errors %}
+                                    <div class="text-danger small mt-1">{{ form.serie.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary" for="{{ form.turno.id_for_label }}">
+                                    {{ form.turno.label }} *
+                                </label>
+                                {{ form.turno }}
+                                {% if form.turno.errors %}
+                                    <div class="text-danger small mt-1">{{ form.turno.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.ativa }}
+                                <label class="form-check-label small fw-semibold text-secondary" for="{{ form.ativa.id_for_label }}">
+                                    Turma Ativa (em andamento neste ano letivo)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% if turma %}{% url 'turmas:detalhe_turma' turma.pk %}{% else %}{% url 'turmas:lista_turmas' %}{% endif %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary fw-semibold px-4">
+                                <i class="bi bi-check2-circle me-1"></i> Salvar Turma
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -17,10 +17,10 @@
                 <i class="bi bi-people text-primary me-2"></i>Turmas e Estudantes
             </h3>
         </div>
-        {% if user.is_admin %}
+        {% if user.is_coordenacao or user.is_admin %}
             <div>
-                <a href="{% url 'admin:turmas_turma_add' %}" class="btn btn-sm btn-outline-primary" target="_blank">
-                    <i class="bi bi-plus-circle me-1"></i> Cadastrar Turma
+                <a href="{% url 'turmas:cadastrar_turma' %}" class="btn btn-sm btn-primary fw-semibold">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Cadastrar Turma
                 </a>
             </div>
         {% endif %}
@@ -48,9 +48,16 @@
                             <i class="bi bi-person-fill text-secondary me-1"></i>
                             <strong>{{ turma.matriculas.count }}</strong> estudante(s)
                         </span>
-                        <a href="{% url 'turmas:detalhe_turma' turma.id %}" class="btn btn-outline-primary btn-sm">
-                            Ver Alunos <i class="bi bi-chevron-right ms-1"></i>
-                        </a>
+                        <div>
+                            {% if user.is_coordenacao or user.is_admin %}
+                                <a href="{% url 'turmas:editar_turma' turma.id %}" class="btn btn-outline-secondary btn-sm me-1" title="Editar Turma">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'turmas:detalhe_turma' turma.id %}" class="btn btn-outline-primary btn-sm">
+                                Ver Alunos <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

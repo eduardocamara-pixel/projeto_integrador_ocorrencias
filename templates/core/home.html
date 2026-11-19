@@ -213,60 +213,80 @@
             </div>
         </div>
 
-        <!-- Card 2: Contextual por Perfil -->
+        <!-- Card 2: Em Aberto / Ação Necessária -->
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="sigoe-card sigoe-card-hover h-100 p-3">
+            <div class="sigoe-card sigoe-card-hover h-100 p-3 border-warning">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    {% if user.is_professor %}
-                        <span class="text-muted small fw-semibold">Minhas Ocorrências</span>
-                        <div class="p-2 bg-info-subtle text-info rounded-3">
-                            <i class="bi bi-person-check fs-5"></i>
-                        </div>
-                    {% else %}
-                        <span class="text-muted small fw-semibold">Pendentes de Triagem</span>
-                        <div class="p-2 bg-warning-subtle text-warning rounded-3">
-                            <i class="bi bi-hourglass-split fs-5"></i>
-                        </div>
-                    {% endif %}
+                    <span class="text-warning small fw-semibold">Em Acompanhamento / Aberto</span>
+                    <div class="p-2 bg-warning-subtle text-warning rounded-3">
+                        <i class="bi bi-hourglass-split fs-5"></i>
+                    </div>
                 </div>
-                <h2 class="fw-bold mb-1">
-                    {% if user.is_professor %}
-                        {{ minhas_ocorrencias_qtd|default:"0" }}
-                    {% else %}
-                        {{ pendentes_analise_qtd|default:"0" }}
-                    {% endif %}
-                </h2>
-                <span class="text-muted small">
-                    {% if user.is_professor %}Registradas por você{% else %}Aguardando coordenação{% endif %}
-                </span>
+                <h2 class="fw-bold mb-1 text-warning">{{ ocorrencias_em_aberto }}</h2>
+                <span class="text-muted small">Requer intervenção pedagógica</span>
             </div>
         </div>
 
-        <!-- Card 3: Turmas Ativas -->
+        <!-- Card 3: Ocorrências Concluídas -->
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="sigoe-card sigoe-card-hover h-100 p-3">
+            <div class="sigoe-card sigoe-card-hover h-100 p-3 border-success">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-semibold">Turmas Ativas</span>
+                    <span class="text-success small fw-semibold">Casos Concluídos</span>
                     <div class="p-2 bg-success-subtle text-success rounded-3">
-                        <i class="bi bi-diagram-3 fs-5"></i>
+                        <i class="bi bi-check2-circle fs-5"></i>
                     </div>
                 </div>
-                <h2 class="fw-bold mb-1">{{ total_turmas }}</h2>
-                <span class="text-muted small">Ano letivo em curso</span>
+                <h2 class="fw-bold mb-1 text-success">{{ ocorrencias_concluidas }}</h2>
+                <span class="text-muted small">Tratados e finalizados</span>
             </div>
         </div>
 
-        <!-- Card 4: Alunos Cadastrados -->
+        <!-- Card 4: Taxa de Resolução -->
         <div class="col-12 col-sm-6 col-lg-3">
             <div class="sigoe-card sigoe-card-hover h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small fw-semibold">Estudantes</span>
-                    <div class="p-2 bg-secondary-subtle text-secondary rounded-3">
-                        <i class="bi bi-people fs-5"></i>
+                    <span class="text-muted small fw-semibold">Taxa de Resolução</span>
+                    <div class="p-2 bg-info-subtle text-info rounded-3">
+                        <i class="bi bi-graph-up-arrow fs-5"></i>
                     </div>
                 </div>
-                <h2 class="fw-bold mb-1">{{ total_alunos }}</h2>
-                <span class="text-muted small">Matrículas ativas</span>
+                <h2 class="fw-bold mb-1 text-primary">{{ taxa_resolucao }}%</h2>
+                <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ taxa_resolucao }}%;" aria-valuenow="{{ taxa_resolucao }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel de Gráficos e Indicadores Visuais (Chart.js) -->
+    <div class="row g-4 mb-4">
+        <!-- Gráfico 1: Ocorrências por Status -->
+        <div class="col-lg-5">
+            <div class="sigoe-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-pie-chart-fill text-primary me-2"></i>Status do Ciclo de Vida
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Consolidado</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico 2: Ocorrências por Categoria -->
+        <div class="col-lg-7">
+            <div class="sigoe-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-bar-chart-fill text-primary me-2"></i>Ocorrências por Categoria Disciplinar
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Top Fatos</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartCategorias"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -345,4 +365,88 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Gráfico de Rosca: Status das Ocorrências
+        const ctxStatus = document.getElementById('chartStatus');
+        if (ctxStatus) {
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ status_labels_json|safe }},
+                    datasets: [{
+                        data: {{ status_data_json|safe }},
+                        backgroundColor: [
+                            '#94a3b8', // Registrada (Cinza)
+                            '#f59e0b', // Em Análise (Amarelo/Âmbar)
+                            '#06b6d4', // Em Acompanhamento (Ciano)
+                            '#3b82f6', // Encaminhada (Azul)
+                            '#10b981'  // Concluída (Verde)
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // 2. Gráfico de Barras: Categorias Mais Frequentes
+        const ctxCat = document.getElementById('chartCategorias');
+        if (ctxCat) {
+            new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: {{ cat_labels_json|safe }},
+                    datasets: [{
+                        label: 'Quantidade de Fatos Registrados',
+                        data: {{ cat_data_json|safe }},
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6,
+                        maxBarThickness: 35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0, font: { size: 11 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 10 },
+                                maxRotation: 25,
+                                minRotation: 0
+                            },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

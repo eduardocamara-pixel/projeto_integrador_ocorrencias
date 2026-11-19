@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Categorias de Ocorrência | SIGOE{% endblock %}
+
+{% block content %}
+<div class="container container-xl py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Início</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Categorias de Ocorrência</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-tags-fill text-primary me-2"></i>Categorias de Ocorrência
+            </h3>
+            <p class="text-muted small mb-0">Classificação pedagógica padronizada para registro e análise de ocorrências.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'registros:cadastrar_categoria' %}" class="btn btn-primary btn-sm fw-semibold">
+                <i class="bi bi-plus-circle-fill me-1"></i> Nova Categoria
+            </a>
+            {% if user.is_admin %}
+                <a href="{% url 'admin:registros_categoriaocorrencia_changelist' %}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="bi bi-sliders me-1"></i> Django Admin
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Total de Categorias</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ categorias.count }}</h3>
+                <small class="text-muted">Cadastradas na instituição</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Categorias Ativas</span>
+                <h3 class="fw-bold text-success mt-1 mb-0">{{ total_ativas }}</h3>
+                <small class="text-muted">Disponíveis nos formulários</small>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="sigoe-card p-3">
+                <span class="text-muted small fw-semibold text-uppercase">Categorias Inativas</span>
+                <h3 class="fw-bold text-secondary mt-1 mb-0">{{ total_inativas }}</h3>
+                <small class="text-muted">Desativadas para novos registros</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Categorias -->
+    <div class="sigoe-card">
+        <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <h5 class="fw-semibold mb-0 text-dark">
+                <i class="bi bi-list-check text-primary me-2"></i>Classificações Disponíveis
+            </h5>
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="busca" class="form-control form-control-sm" placeholder="Buscar categoria..." value="{{ busca }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-search"></i></button>
+                {% if busca %}
+                    <a href="{% url 'registros:lista_categorias' %}" class="btn btn-outline-secondary btn-sm" title="Limpar"><i class="bi bi-x-lg"></i></a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="card-body p-0">
+            {% if categorias %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary small text-uppercase">
+                            <tr>
+                                <th class="ps-3">Nome da Categoria</th>
+                                <th>Descrição Pedagógica</th>
+                                <th class="text-center">Ocorrências</th>
+                                <th>Status</th>
+                                <th class="text-end pe-3">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in categorias %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">{{ c.nome }}</td>
+                                <td class="small text-muted" style="max-width: 400px;">
+                                    {{ c.descricao|default:"Sem descrição adicional." }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-2 py-1">
+                                        {{ c.total_ocorrencias }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if c.ativo %}
+                                        <span class="badge bg-success-subtle text-success border">Ativa</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary border">Inativa</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-3">
+                                    <a href="{% url 'registros:editar_categoria' c.id %}" class="btn btn-outline-primary btn-sm me-1" title="Editar">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a href="{% url 'registros:toggle_categoria' c.id %}" class="btn btn-sm {% if c.ativo %}btn-outline-danger{% else %}btn-outline-success{% endif %}" title="{% if c.ativo %}Inativar Categoria{% else %}Ativar Categoria{% endif %}">
+                                        {% if c.ativo %}
+                                            <i class="bi bi-slash-circle"></i> Inativar
+                                        {% else %}
+                                            <i class="bi bi-check-circle"></i> Ativar
+                                        {% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-tags fs-1"></i>
+                    <h6 class="fw-semibold text-dark mt-2">Nenhuma categoria encontrada</h6>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

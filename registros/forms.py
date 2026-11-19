@@ -73,3 +73,27 @@ class OcorrenciaForm(forms.ModelForm):
             'descricao',
             'providencias_iniciais'
         ]
+
+
+class CategoriaOcorrenciaForm(forms.ModelForm):
+    """
+    Formulário para cadastro e edição de Categorias de Ocorrência.
+    """
+    class Meta:
+        model = CategoriaOcorrencia
+        fields = ['nome', 'descricao', 'ativo']
+        widgets = {
+            'nome': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Indisciplina, Conflito entre pares, Atitude Colaborativa',
+                'autofocus': True
+            }),
+            'descricao': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Descrição e orientações de enquadramento pedagógico desta categoria...'
+            }),
+            'ativo': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }

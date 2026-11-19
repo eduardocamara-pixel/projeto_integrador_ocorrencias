@@ -23,6 +23,14 @@
             <a href="{% url 'turmas:lista_turmas' %}" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i> Voltar às Turmas
             </a>
+            {% if user.is_coordenacao or user.is_admin %}
+                <a href="{% url 'turmas:editar_turma' turma.id %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Editar Turma
+                </a>
+                <button type="button" class="btn btn-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalMatricularAluno">
+                    <i class="bi bi-person-plus-fill me-1"></i> Matricular Estudante
+                </button>
+            {% endif %}
             {% if user.is_professor or user.is_admin %}
                 <a href="{% url 'registros:nova_ocorrencia' %}" class="btn btn-warning btn-sm fw-semibold text-dark">
                     <i class="bi bi-plus-circle-fill me-1"></i> Registrar Ocorrência
@@ -84,6 +92,47 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Modal de Matrícula de Aluno -->
+    {% if user.is_coordenacao or user.is_admin %}
+    <div class="modal fade" id="modalMatricularAluno" tabindex="-1" aria-labelledby="modalMatricularAlunoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark" id="modalMatricularAlunoLabel">
+                        <i class="bi bi-person-plus text-primary me-2"></i>Matricular Estudante em {{ turma.nome }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <form action="{% url 'turmas:matricular_aluno' turma.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-secondary">Selecione o Estudante *</label>
+                            {{ matricula_form.aluno }}
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary">{{ matricula_form.data_entrada.label }} *</label>
+                                {{ matricula_form.data_entrada }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-secondary">{{ matricula_form.situacao.label }} *</label>
+                                {{ matricula_form.situacao }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Confirmar Matrícula
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}
